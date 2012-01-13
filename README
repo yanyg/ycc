@@ -1,0 +1,12 @@
+	git://github.com/yanyg/ycc.git
+
+What is ycc?
+  ycc is a C-language library for daily-used functions. Like as algorithms,
+  debugs, memory pool, etc.
+
+Platforms and Compilers
+  Linux
+  GNU GCC
+
+Copyright/Copyleft
+  GPL/LGPL
