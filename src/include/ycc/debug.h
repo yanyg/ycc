@@ -1,5 +1,5 @@
 /*
- * dstdio.h -- debug io routines
+ * debug.h -- debug macros, routines, etc.
  *
  * Copyright (C) 2012-2013 yanyg (cppgp@qq.com)
  *
@@ -33,13 +33,13 @@ __BEGIN_DECLS
 bool dstamp(bool stamp);
 #ifdef NDEBUG
 /* NDEBUG: turn off */
-#define DEBUG(x)			__ASSERT_VOID_CAST(0)
+#define DINSERT(x)			__ASSERT_VOID_CAST(0)
 #define dprintf(fmt)			__ASSERT_VOID_CAST(0)
 #define dfprintf(stream, fmt)		__ASSERT_VOID_CAST(0)
 #define dvprintf(fmt, ap)		__ASSERT_VOID_CAST(0)
 #define dvfprintf(stream, fmt, ap)	__ASSERT_VOID_CAST(0)
 #else
-#define DEBUG(x)	x
+#define DINSERT(x)			x
 #define  dprintf(fmt, ...)		__dvprintf(			\
 	stdout, __FILE__, __func__, __LINE__, (fmt), ## __VA_ARGS__)
 #define  dfprintf(stream, fmt, ...)	__dvprintf(			\

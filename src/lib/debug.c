@@ -1,5 +1,5 @@
 /*
- * dstdio.c -- debug io routines
+ * debug.c -- debug macros, routines, etc.
  *
  * Copyright (C) 2012-2013 yanyg (cppgp@qq.com)
  *
