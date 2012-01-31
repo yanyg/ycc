@@ -38,7 +38,7 @@ __BEGIN_DECLS
 
 struct rb_node
 {
-	bst_link_member(struct rb_node);
+	__BST_LINK_MEMBER(struct rb_node);
 	unsigned color;
 #define RB_COLOR_RED 0
 #define RB_COLOR_BLACK 1

@@ -143,6 +143,7 @@ static inline void __rb_erase_color(struct rb_node *node,
 {
 	struct rb_node *other;
 	struct rb_node **proot = &rb->node;
+
 	while (node != *proot && (!node || rb_is_black(node))) {
 		/*
 		 * For here, parent have one child at least.
