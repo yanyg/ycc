@@ -185,30 +185,6 @@ struct bst_link *bstlink_prev(const struct bst_link *link)
 	return (struct bst_link*)parent;
 }
 
-struct bst_link *bstlink_find(const struct bst_link *link,
-			      bstlink_compare_t compare,
-			      const void *arg)
-{
-	int icmp;
-	struct bst_link *r = NULL;
-
-	while (link) {
-		icmp = compare(link, arg);
-		if (icmp < 0)
-			link = link->right;
-		else {
-			if (icmp == 0)
-				r = (struct bst_link*)link;
-			else if (r)
-				break; /* r is the left-most euqally-link */
-
-			link = link->left;
-		}
-	}
-
-	return r;
-}
-
 struct bst_link *bstlink_lower_bound(const struct bst_link *link,
 				     bstlink_compare_t compare,
 				     const void *arg)

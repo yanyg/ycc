@@ -86,78 +86,12 @@ static inline struct rb_node *rb_prev(const struct rb_node* node)
 	return __bstlink_prev(node, struct rb_node);
 }
 
-static inline struct rb_node *
-rb_find(const struct rb_root *rb,
-	int (*compare)(const struct rb_node *node,
-		       const void *arg),
-		       const void *arg)
-{
-	return __bstlink_find(rb->node, compare, arg, struct rb_node);
-}
-
-static inline struct rb_node *rb_lower_bound(struct rb_root *rb,
-					     int (*compare)(
-						  const struct rb_node *node,
-						  const void *arg),
-					     const void *arg)
-{
-	return __bstlink_lower_bound(rb->node, compare, arg, struct rb_node);
-}
-
-static inline struct rb_node *rb_upper_bound(struct rb_root *rb,
-					     int (*compare)(
-						  const struct rb_node *node,
-						  const void *arg),
-					     const void *arg)
-{
-	return __bstlink_upper_bound(rb->node, compare, arg, struct rb_node);
-}
-
-static inline void
-rb_lower_upper_bound(struct rb_root *rb,
-		     int (*compare)(const struct rb_node *node,
-		     const void *arg),
-		     const void *arg,
-		     struct rb_node **plower,
-		     struct rb_node **pupper)
-{
-	__bstlink_lower_upper_bound(rb->node, compare, arg, plower, pupper);
-}
-
-void rb_insert(struct rb_node *node,
-	       struct rb_root *rb,
-	       int (*compare_link)(const struct rb_node *node1,
-				   const struct rb_node *node2,
-				   const void *arg),
-	       const void *arg);
-bool rb_insert_unique(struct rb_node *node,
-	       struct rb_root *rb,
-	       int (*compare_link)(const struct rb_node *node1,
-				   const struct rb_node *node2,
-				   const void *arg),
-	       const void *arg);
 void rb_insert_color(struct rb_node *node, struct rb_root *rb);
 
 void rb_erase(struct rb_node *node, struct rb_root *rb);
 void rb_erase_range(struct rb_node *beg,
 		    struct rb_node *end,
 		    struct rb_root *rb);
-void rb_erase_equal(struct rb_root *rb,
-		    int (*compare)(const struct rb_node *node,
-				   const void *arg),
-		    void (*destroy)(struct rb_node *node, const void *arg),
-		    const void *arg_compare,
-		    const void *arg_destroy);
-
-static inline void rb_clear(struct rb_root *rb,
-			    void (*destroy)(struct rb_node *node,
-					    const void *arg),
-			    const void *arg)
-{
-	__bstlink_destroy(rb->node, destroy, arg);
-	rb_init(rb);	/* re-init */
-}
-
 struct rb_root *rb_alloc(size_t num);
 void rb_free(struct rb_root *rb,
 	     size_t num,
@@ -196,16 +130,6 @@ static inline void rb_swap(struct rb_root *rb1, struct rb_root *rb2)
 #define rb_set_color(r, val)	do { (r)->color = (val); } while(0)
 #define rb_set_red(r)	rb_set_color((r), RB_COLOR_RED)
 #define rb_set_black(r)	rb_set_color((r), RB_COLOR_BLACK)
-
-static inline size_t rb_depth_max(const struct rb_root *rb)
-{
-	return __bstlink_depth_max(rb->node);
-}
-
-static inline size_t rb_depth_min(const struct rb_root *rb)
-{
-	return __bstlink_depth_min(rb->node);
-}
 
 __END_DECLS
 
