@@ -20,6 +20,40 @@
 
 #include <ycc/algos/bstree-helper.h>
 
+bool __bst_insert_prepare(struct bst_link *node,
+			  struct bst_link **proot,
+			  int (*compare_link)(const struct bst_link *link1,
+					      const struct bst_link *link2,
+					      const void *arg),
+			  const void *arg,
+			  bool bunique)
+{
+	struct bst_link *parent = NULL;
+
+	while (*proot) {
+		int icmp = compare_link(*proot, node, arg);
+
+		parent = *proot;
+
+		if (icmp > 0)
+			proot = &(*proot)->left;
+		else {
+			/* For bunique == true,
+			 * if rbtree had have a node which value equals to
+			 * the insert-node, the insert-operation fail.
+			 */
+			 if (!icmp && bunique)
+				 return false;
+
+			proot = &(*proot)->right;
+		}
+	}
+
+	bstlink_init(node, parent, proot);
+
+	return true;
+}
+
 struct bst_link *__bst_find(const struct bst_link *link,
 			    __bst_compare_t compare,
 			    const void *arg)

@@ -32,6 +32,16 @@ typedef bool (*__bst_visit_cond_t)(const struct bst_link *link,
 				   const void *arg);
 
 /*
+ * __bst_insert_prepare  --  set the link of the node for insert
+ */
+bool __bst_insert_prepare(struct bst_link *node,
+			  struct bst_link **proot,
+			  int (*compare_link)(const struct bst_link *link1,
+					      const struct bst_link *link2,
+					      const void *arg),
+			  const void *arg,
+			  bool bunique);
+/*
  * __bst_find  --  find the left-most node
  *
  * Description

@@ -20,6 +20,7 @@
 
 #include <ycc/algos/rbtree.h>
 
+#if 0
 static inline bool
 __rb_insert(struct rb_node *node,
 	    struct rb_root *rb,
@@ -56,7 +57,6 @@ __rb_insert(struct rb_node *node,
 
 	return true;
 }
-
 void rb_insert(struct rb_node *node,
 	       struct rb_root *rb,
 	       int (*compare_link)(const struct rb_node *node1,
@@ -76,6 +76,8 @@ bool rb_insert_unique(struct rb_node *node,
 {
 	return __rb_insert(node, rb, compare_link, arg, true);
 }
+
+#endif
 
 void rb_insert_color(struct rb_node *node, struct rb_root *rb)
 {
@@ -276,6 +278,29 @@ void rb_erase(struct rb_node *node, struct rb_root *rb)
 		__rb_erase_color(child, parent, rb);
 }
 
+void rb_replace(struct rb_node *victim, struct rb_node *new,
+		struct rb_root *root)
+{
+	struct rb_node *parent = victim->parent;
+
+	if (parent) {
+		if (victim == parent->left)
+			parent->left = new;
+		else
+			parent->right = new;
+	} else {
+		root->node = new;
+	}
+
+	if (victim->left)
+		victim->left->parent = new;
+	if (victim->right)
+		victim->right->parent = new;
+
+	*new = *victim;
+}
+
+#if 0
 void rb_erase_range(struct rb_node *beg,
 		    struct rb_node *end,
 		    struct rb_root *rb)
@@ -307,5 +332,6 @@ rb_erase_equal(struct rb_root *rb,
 		destroy(del, arg_destroy);
 	}
 }
+#endif
 
 /* eof */
