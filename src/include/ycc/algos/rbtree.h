@@ -62,36 +62,101 @@ static inline void rb_link_node(struct rb_node *node,
 				struct rb_node *parent,
 				struct rb_node **pnode)
 {
-	__bstlink_init(node, parent, pnode);
+	__BSTLINK_INIT(node, parent, pnode);
 	node->color = RB_COLOR_RED;
 }
 
 static inline struct rb_node *rb_first(const struct rb_root *rb)
 {
-	return __bstlink_first(rb->node, struct rb_node);
+	return __BSTLINK_FIRST(rb->node, struct rb_node);
 }
 
 static inline struct rb_node *rb_last(const struct rb_root *rb)
 {
-	return __bstlink_last(rb->node, struct rb_node);
+	return __BSTLINK_LAST(rb->node, struct rb_node);
 }
 
 static inline struct rb_node *rb_next(const struct rb_node* node)
 {
-	return __bstlink_next(node, struct rb_node);
+	return __BSTLINK_NEXT(node, struct rb_node);
 }
 
 static inline struct rb_node *rb_prev(const struct rb_node* node)
 {
-	return __bstlink_prev(node, struct rb_node);
+	return __BSTLINK_PREV(node, struct rb_node);
 }
 
 void rb_insert_color(struct rb_node *node, struct rb_root *rb);
-
 void rb_erase(struct rb_node *node, struct rb_root *rb);
-void rb_erase_range(struct rb_node *beg,
-		    struct rb_node *end,
-		    struct rb_root *rb);
+
+
+/* helper routine */
+static inline struct rb_node *
+rb_find(const struct rb_root *rb,
+	int (*compare)(const struct rb_node *node,
+		       const void *arg),
+		       const void *arg)
+{
+	return __BSTLINK_FIND(rb->node, compare, arg, struct rb_node);
+}
+
+static inline struct rb_node *
+rb_lower_bound()
+{
+}
+static inline void
+rb_insert(struct rb_node *node,
+	  struct rb_root *rb,
+	  int (*compare_link)(const struct rb_node *node1,
+			      const struct rb_node *node2,
+			      const void *arg),
+	  const void *arg)
+{
+	(void)__BSTLINK_INSERT_PREPARE(node, &rb->node, compare_link,
+				       arg, false);
+	rb_set_red(node);
+
+	rb_insert_color(node, rb);
+}
+
+static inline bool
+rb_insert_unique(struct rb_node *node,
+		 struct rb_root *rb,
+		 int (*compare_link)(const struct rb_node *node1,
+				     const struct rb_node *node2,
+				     const void *arg),
+		 const void *arg)
+{
+	
+	if (__BSTLINK_INSERT_PREPARE(node, &rb->node, compare_link,
+				       arg, false))
+	{
+		rb_set_red(node);
+		rb_insert_color(node, rb);
+		return true;
+	}
+
+	return false;
+}
+
+static inline void rb_erase_range(struct rb_node *beg,
+				  struct rb_node *end,
+				  struct rb_root *rb)
+{
+	__BSTLINK_ERASE_RANGE(beg, end, rb_erase, rb);
+}
+
+static inline void
+rb_erase_equal(struct rb_root *rb,
+	       int (*compare)(const struct rb_node *node, const void *arg),
+	       void (*destroy)(struct rb_node *node, const void *arg),
+	       const void *arg_compare,
+	       const void *arg_destroy)
+{
+	__BSTLINK_ERASE_EQUAL(rb->node, compare, rb_erase, destroy,
+			      arg_compare, rb, arg_destroy);
+}
+
 struct rb_root *rb_alloc(size_t num);
 void rb_free(struct rb_root *rb,
 	     size_t num,

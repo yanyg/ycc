@@ -50,6 +50,64 @@ struct bst_link *bstlink_last(const struct bst_link *link);
 struct bst_link *bstlink_next(const struct bst_link *link);
 struct bst_link *bstlink_prev(const struct bst_link *link);
 
+/* auto-convert macros */
+#define __BSTLINK_ROTATE_LEFT(link, pproot)				\
+		bstlink_rotate_left					\
+		(							\
+			(struct bst_link*)link,				\
+			(struct bst_link**)pproot			\
+		)
+
+#define __BSTLINK_ROTATE_RIGHT(link, pproot)				\
+		bstlink_rotate_right					\
+		(							\
+			(struct bst_link*)link,				\
+			(struct bst_link**)pproot			\
+		)
+
+#define __BSTLINK_FIRST(link, type)					\
+		(type*)							\
+		bstlink_first						\
+		(							\
+			(const struct bst_link*)(link)			\
+		)
+
+#define __BSTLINK_LAST(link, type)					\
+		(type*)							\
+		bstlink_last						\
+		(							\
+			(const struct bst_link*)(link)			\
+		)
+
+#define __BSTLINK_NEXT(link, type)					\
+		(type*)							\
+		bstlink_next						\
+		(							\
+			(const struct bst_link*)(link)			\
+		)
+
+#define __BSTLINK_PREV(link, type)					\
+		(type*)							\
+		bstlink_prev						\
+		(							\
+			(const struct bst_link*)(link)			\
+		)
+
+/*
+ * helper-routine
+ * You may need to implement the follows by yourself to
+ * ensure some performances
+ */
+typedef void (*bstlink_erase_t)(struct bst_link *link, const void *arg);
+typedef void (*bstlink_destroy_t)(struct bst_link *link, const void *arg);
+typedef int (*bstlink_compare_t)(const struct bst_link *link, const void *arg);
+typedef int (*bstlink_compare_link_t)(const struct bst_link *link1,
+				      const struct bst_link *link2,
+				      const void *arg);
+typedef void (*bstlink_visit_t)(const struct bst_link *link, const void *arg);
+typedef bool (*bstlink_visit_cond_t)(const struct bst_link *link,
+				     const void *arg);
+
 static inline void bstlink_init(struct bst_link *link,
 				struct bst_link *parent,
 				struct bst_link **plink)
@@ -59,55 +117,258 @@ static inline void bstlink_init(struct bst_link *link,
 	*plink = link;
 }
 
-#define __bstlink_rotate_left(link, pproot)				\
-		bstlink_rotate_left					\
-		(							\
-			(struct bst_link*)link,				\
-			(struct bst_link**)pproot			\
-		)
+/*
+ * bstlink_find  --  find the left-most node
+ *
+ * Description
+ *	The function finds the left-most node of the 'link' subtree,
+ *	the node's value is equals to 'arg' which judged by routine
+ *	'compare'
+ *
+ * Parameters
+ *	link	: the root node of search-tree
+ *	compare	: pointer of value compares routine
+ *	arg	: transfer to 'compare' transparently
+ *
+ * Return value
+ *	The left-most node which value is equals to 'arg' or
+ *	NULL if no-match found.
+ */
+struct bst_link *bstlink_find(const struct bst_link *link,
+			    bstlink_compare_t compare,
+			    const void *arg);
 
-#define __bstlink_rotate_right(link, pproot)				\
-		bstlink_rotate_right					\
-		(							\
-			(struct bst_link*)link,				\
-			(struct bst_link**)pproot			\
-		)
+/*
+ * bstlink_lower_bound
+ *
+ * Description
+ *	The function finds the first node of the 'link' subtree,
+ *	the node's value is equals to or greater than 'arg' which
+ *	judged by routine 'compare'
+ *
+ * Parameters
+ *	link	: the root node of search-tree
+ *	compare	: pointer of value compares routine
+ *	arg	: transfer to 'compare' transparently
+ *
+ * Return value
+ *	The first node which value is equals to or greater than 'arg' or
+ *	NULL if no-match found.
+ */
+struct bst_link *bstlink_lower_bound(const struct bst_link *link,
+				   bstlink_compare_t compare,
+				   const void *arg);
 
-#define __bstlink_first(link, type)					\
-		(type*)							\
-		bstlink_first						\
-		(							\
-			(const struct bst_link*)(link)			\
-		)
+/*
+ * bstlink_upper_bound
+ *
+ * Description
+ *	The function finds the first node of the 'link' subtree,
+ *	the node's value is greater than 'arg' which judged by
+ *	routine 'compare'
+ *
+ * Parameters
+ *	link	: the root node of search-tree
+ *	compare	: pointer of value compares routine
+ *	arg	: transfer to 'compare' transparently
+ *
+ * Return value
+ *	The first node which value is greater than 'arg' or
+ *	NULL if no-match found.
+ */
+struct bst_link *bstlink_upper_bound(const struct bst_link *link,
+				   bstlink_compare_t compare,
+				   const void *arg);
 
-#define __bstlink_last(link, type)					\
-		(type*)							\
-		bstlink_last						\
-		(							\
-			(const struct bst_link*)(link)			\
-		)
+/* bstlink_lower_upper_bound -- the merge of two routines above */
+void bstlink_lower_upper_bound(const struct bst_link *link,
+			     bstlink_compare_t compare,
+			     const void *arg,
+			     struct bst_link **plb,
+			     struct bst_link **pub);
 
-#define __bstlink_next(link, type)					\
-		(type*)							\
-		bstlink_next						\
-		(							\
-			(const struct bst_link*)(link)			\
-		)
+bool bstlink_insert_prepare(struct bst_link *link,
+			  struct bst_link **proot,
+			  bstlink_compare_link_t compare_link,
+			  const void *arg,
+			  bool bunique);
 
-#define __bstlink_prev(link, type)					\
-		(type*)							\
-		bstlink_prev						\
-		(							\
-			(const struct bst_link*)(link)			\
-		)
+static inline void bstlink_erase_range(struct bst_link *beg,
+				       struct bst_link *end,
+				       bstlink_erase_t erase,
+				       const void *arg
+				       )
+{
+	while (beg != end) {
+		struct bst_link *del = beg;
+		beg = bstlink_next(beg);
+		erase(del, arg);
+	}
+}
 
-#define __bstlink_init(link, parent, plink)				\
+static inline void bstlink_erase_equal(struct bst_link *root,
+				       bstlink_compare_t compare,
+				       bstlink_erase_t erase,
+				       bstlink_destroy_t destroy,
+				       const void *arg_compare,
+				       const void *arg_erase,
+				       const void *arg_destroy)
+{
+	struct bst_link *lb, *ub;
+
+	bstlink_lower_upper_bound(root, compare, arg_compare, &lb, &ub);
+
+	while (lb != ub) {
+		struct bst_link *del = lb;
+		lb = bstlink_next(lb);
+		erase(del, arg_erase);
+		destroy(del, arg_destroy);
+	}
+}
+
+/*
+ * bstlink_count  --  count of nodes which value equal to
+ */
+size_t bstlink_count(const struct bst_link *link,
+		   bstlink_compare_t compare,
+		   const void *arg);
+
+/* destroy all link and its descendant */
+void bstlink_destroy(struct bst_link *link,
+		   bstlink_destroy_t destroy,
+		   const void *arg);
+
+/* inorder-traverse */
+void bstlink_visit(struct bst_link *link,
+		 bstlink_visit_t visit,
+		 const void *arg);
+bool bstlink_visit_cond(struct bst_link *link,
+		      bstlink_visit_cond_t visit_cond,
+		      const void *arg);
+
+size_t bstlink_depth(const struct bst_link *link, bool bmax);
+
+#define __BSTLINK_INIT(link, parent, plink)				\
 		bstlink_init						\
 		(							\
 			(struct bst_link*)(link),			\
 			(struct bst_link*)(parent),			\
 			(struct bst_link**)(plink)			\
 		)
+
+#define __BSTLINK_FIND(link, compare, arg, type)			\
+		(type*)							\
+		bstlink_find						\
+		(							\
+			(const struct bst_link*)(link),			\
+			(bstlink_compare_t)(compare),			\
+			(const void*)(arg)				\
+		)
+
+#define __BSTLINK_LOWER_BOUND(link, compare, arg, type)			\
+		(type*)							\
+		bstlink_lower_bound					\
+		(							\
+			(struct bst_link*)(link),			\
+			(bstlink_compare_t)(compare),			\
+			(const void*)(arg)				\
+		)
+
+#define __BSTLINK_UPPER_BOUND(link, compare, arg, type)			\
+		(type*)							\
+		bstlink_upper_bound					\
+		(							\
+			(struct bst_link*)(link),			\
+			(bstlink_compare_t)(compare),			\
+			(const void*)(arg)				\
+		)
+
+#define __BSTLINK_LOWER_UPPER_BOUND(link, compare, arg, plower, pupper)	\
+		bstlink_lower_upper_bound				\
+		(							\
+			(const struct bst_link*)(link),			\
+			(bstlink_compare_t)(compare),			\
+			(const void*)(arg),				\
+			(struct bst_link**)(plower),			\
+			(struct bst_link**)(pupper)			\
+		)
+
+#define __BSTLINK_INSERT_PREPARE(link, proot,				\
+				 compare_link,arg, bunique)		\
+		bstlink_insert_prepare					\
+		(							\
+			(struct bst_link*)(link),			\
+			(struct bst_link**)(proot),			\
+			(bstlink_compare_link_t)(compare_link),		\
+			(const void*)(arg),				\
+			(struct bst_link**)(plower),			\
+			(struct bst_link**)(pupper)			\
+			(bunique)					\
+		)
+
+#define __BSTLINK_ERASE_RANGE(beg, end, erase, arg)			\
+		bstlink_erase_range					\
+		(							\
+			(struct bst_link*)(beg),			\
+			(struct bst_link*)(end),			\
+			(bstlink_erase_t)(erase),			\
+			(const void*)(arg)				\
+		)
+
+#define __BSTLINK_ERASE_EQUAL(root, compare, erase, destroy		\
+			      arg_compare, arg_erase, arg_destroy)	\
+		bstlink_erase_equal					\
+		(							\
+			(struct bst_link*)(root),			\
+			(bstlink_compare_t)(compare),			\
+			(bstlink_erase_t)(erase),			\
+			(bstlink_destroy_t)(destroy),			\
+			(const void*)(arg_compare),			\
+			(const void*)(arg_erase),			\
+			(const void*)(arg_destroy)			\
+		)
+
+#define __BSTLINK_COUNT(link, compare, arg)				\
+		bstlink_count						\
+		(							\
+			(struct bst_link*)(link),			\
+			(bstlink_compare_t)(compare),			\
+			(const void*)(arg)				\
+		)
+
+#define __BSTLINK_DESTROY(link, destroy, arg)				\
+		bstlink_destroy						\
+		(							\
+			(struct bst_link*)(link),			\
+			(bstlink_destroy_t)(destroy),			\
+			(const void*)(arg)				\
+		)
+
+#define __BSTLINK_VISIT(link, visit, arg)				\
+		bstlink_visit						\
+		(							\
+			(struct bst_link*)(link),			\
+			(bstlink_visit_t)(visit),			\
+			(const void*)(arg)				\
+		)
+
+#define __BSTLINK_VISIT_COND(link, visit_cond, arg)			\
+		bstlink_visit						\
+		(							\
+			(struct bst_link*)(link),			\
+			(bstlink_visit_cond_t)(visit_cond),		\
+			(const void*)(arg)				\
+		)
+
+#define __BSTLINK_DEPTH(link, bmax)					\
+		bstlink_depth						\
+		(							\
+			(const struct bst_link*)(link),			\
+			(bmax)						\
+		)
+
+#define __BSTLINK_DEPTH_MAX(link) __BSTLINK_DEPTH((link),true)
+#define __BSTLINK_DEPTH_MIN(link) __BSTLINK_DEPTH((link),false)
 
 __END_DECLS
 
