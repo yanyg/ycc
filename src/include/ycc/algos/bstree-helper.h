@@ -19,30 +19,51 @@
  */
 
 #include <ycc/algos/bstree-link.h>
+#if 1
 #include <ycc/algos/rbtree.h>
 #include <ycc/algos/avltree.h>
+#endif
 
-typedef void (*__bst_destroy_t)(struct bst_link *link, const void *arg);
-typedef int (*__bst_compare_t)(const struct bst_link *link, const void *arg);
-typedef int (*__bst_compare_link_t)(const struct bst_link *link1,
+typedef void (*bstlink_erase_t)(struct bst_link *link, const void *arg);
+typedef void (*bstlink_destroy_t)(struct bst_link *link, const void *arg);
+typedef int (*bstlink_compare_t)(const struct bst_link *link, const void *arg);
+typedef int (*bstlink_compare_link_t)(const struct bst_link *link1,
 				    const struct bst_link *link2,
 				    const void *arg);
-typedef void (*__bst_visit_t)(const struct bst_link *link, const void *arg);
-typedef bool (*__bst_visit_cond_t)(const struct bst_link *link,
+typedef void (*bstlink_visit_t)(const struct bst_link *link, const void *arg);
+typedef bool (*bstlink_visit_cond_t)(const struct bst_link *link,
 				   const void *arg);
 
 /*
- * __bst_insert_prepare  --  set the link of the node for insert
+ * bstlink_insert_prepare  --  set the link of the node for insert
  */
-bool __bst_insert_prepare(struct bst_link *node,
+bool bstlink_insert_prepare(struct bst_link *node,
 			  struct bst_link **proot,
 			  int (*compare_link)(const struct bst_link *link1,
 					      const struct bst_link *link2,
 					      const void *arg),
 			  const void *arg,
 			  bool bunique);
+
+static inline void bstlink_erase_range(struct bst_link *beg,
+				       struct bst_link *end,
+				       bstlink_erase_t erase,
+				       const void *arg
+				       )
+{
+	while (beg != end) {
+		struct bst_link *del = beg;
+		beg = bstlink_next(beg);
+		erase(del, arg);
+	}
+}
+
+static inline void bstlink_erase_equal()
+{
+}
+
 /*
- * __bst_find  --  find the left-most node
+ * bstlink_find  --  find the left-most node
  *
  * Description
  *	The function finds the left-most node of the 'link' subtree,
@@ -58,12 +79,12 @@ bool __bst_insert_prepare(struct bst_link *node,
  *	The left-most node which value is equals to 'arg' or
  *	NULL if no-match found.
  */
-struct bst_link *__bst_find(const struct bst_link *link,
-			    __bst_compare_t compare,
+struct bst_link *bstlink_find(const struct bst_link *link,
+			    bstlink_compare_t compare,
 			    const void *arg);
 
 /*
- * __bst_lower_bound
+ * bstlink_lower_bound
  *
  * Description
  *	The function finds the first node of the 'link' subtree,
@@ -79,12 +100,12 @@ struct bst_link *__bst_find(const struct bst_link *link,
  *	The first node which value is equals to or greater than 'arg' or
  *	NULL if no-match found.
  */
-struct bst_link *__bst_lower_bound(const struct bst_link *link,
-				   __bst_compare_t compare,
+struct bst_link *bstlink_lower_bound(const struct bst_link *link,
+				   bstlink_compare_t compare,
 				   const void *arg);
 
 /*
- * __bst_upper_bound
+ * bstlink_upper_bound
  *
  * Description
  *	The function finds the first node of the 'link' subtree,
@@ -100,40 +121,40 @@ struct bst_link *__bst_lower_bound(const struct bst_link *link,
  *	The first node which value is greater than 'arg' or
  *	NULL if no-match found.
  */
-struct bst_link *__bst_upper_bound(const struct bst_link *link,
-				   __bst_compare_t compare,
+struct bst_link *bstlink_upper_bound(const struct bst_link *link,
+				   bstlink_compare_t compare,
 				   const void *arg);
 
 /*
- * __bst_lower_upper_bound -- the merge of two routines above
+ * bstlink_lower_upper_bound -- the merge of two routines above
  */
-void __bst_lower_upper_bound(const struct bst_link *link,
-			     __bst_compare_t compare,
+void bstlink_lower_upper_bound(const struct bst_link *link,
+			     bstlink_compare_t compare,
 			     const void *arg,
 			     struct bst_link **plb,
 			     struct bst_link **pub);
 
 /*
- * __bst_count  --  count of nodes which value equal to
+ * bstlink_count  --  count of nodes which value equal to
  */
-size_t __bst_count(const struct bst_link *link,
-		   __bst_compare_t compare,
+size_t bstlink_count(const struct bst_link *link,
+		   bstlink_compare_t compare,
 		   const void *arg);
 
 /* destroy all link and its descendant */
-void __bst_destroy(struct bst_link *link,
-		   __bst_destroy_t destroy,
+void bstlink_destroy(struct bst_link *link,
+		   bstlink_destroy_t destroy,
 		   const void *arg);
 
 /* inorder-traverse */
-void __bst_visit(struct bst_link *link,
-		 __bst_visit_t visit,
+void bstlink_visit(struct bst_link *link,
+		 bstlink_visit_t visit,
 		 const void *arg);
-bool __bst_visit_cond(struct bst_link *link,
-		      __bst_visit_cond_t visit_cond,
+bool bstlink_visit_cond(struct bst_link *link,
+		      bstlink_visit_cond_t visit_cond,
 		      const void *arg);
 
-size_t __bst_depth(const struct bst_link *link, bool bmax);
+size_t bstlink_depth(const struct bst_link *link, bool bmax);
 
 /*
  * Type auto-convert macros
@@ -158,7 +179,7 @@ size_t __bst_depth(const struct bst_link *link, bool bmax);
 		bstlink_find						\
 		(							\
 			(const struct bst_link*)(link),			\
-			(__bst_compare_t)(compare),			\
+			(bstlink_compare_t)(compare),			\
 			(const void*)(arg)				\
 		)
 
@@ -167,7 +188,7 @@ size_t __bst_depth(const struct bst_link *link, bool bmax);
 		bstlink_lower_bound					\
 		(							\
 			(struct bst_link*)(link),			\
-			(__bst_compare_t)(compare),			\
+			(bstlink_compare_t)(compare),			\
 			(const void*)(arg)				\
 		)
 
@@ -176,7 +197,7 @@ size_t __bst_depth(const struct bst_link *link, bool bmax);
 		bstlink_upper_bound					\
 		(							\
 			(struct bst_link*)(link),			\
-			(__bst_compare_t)(compare),			\
+			(bstlink_compare_t)(compare),			\
 			(const void*)(arg)				\
 		)
 
@@ -184,7 +205,7 @@ size_t __bst_depth(const struct bst_link *link, bool bmax);
 		bstlink_lower_upper_bound				\
 		(							\
 			(const struct bst_link*)(link),			\
-			(__bst_compare_t)(compare),			\
+			(bstlink_compare_t)(compare),			\
 			(const void*)(arg),				\
 			(struct bst_link**)(plower),			\
 			(struct bst_link**)(pupper)			\
@@ -192,7 +213,7 @@ size_t __bst_depth(const struct bst_link *link, bool bmax);
 
 #define __bstlink_destroy(link, destroy, arg)	bstlink_destroy(	\
 		(struct bst_link*)(link),				\
-		(__bst_destroy_t)(destroy),				\
+		(bstlink_destroy_t)(destroy),				\
 		(const void*)(arg))
 
 /* rbtree */

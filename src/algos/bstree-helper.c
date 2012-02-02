@@ -20,7 +20,7 @@
 
 #include <ycc/algos/bstree-helper.h>
 
-bool __bst_insert_prepare(struct bst_link *node,
+bool bstlink_insert_prepare(struct bst_link *node,
 			  struct bst_link **proot,
 			  int (*compare_link)(const struct bst_link *link1,
 					      const struct bst_link *link2,
@@ -54,8 +54,8 @@ bool __bst_insert_prepare(struct bst_link *node,
 	return true;
 }
 
-struct bst_link *__bst_find(const struct bst_link *link,
-			    __bst_compare_t compare,
+struct bst_link *bstlink_find(const struct bst_link *link,
+			    bstlink_compare_t compare,
 			    const void *arg)
 {
 	struct bst_link *r = NULL;
@@ -76,8 +76,8 @@ struct bst_link *__bst_find(const struct bst_link *link,
 	}
 }
 
-struct bst_link *__bst_lower_bound(const struct bst_link *link,
-				   __bst_compare_t compare,
+struct bst_link *bstlink_lower_bound(const struct bst_link *link,
+				   bstlink_compare_t compare,
 				   const void *arg)
 {
 	struct bst_link *lb = NULL;
@@ -93,8 +93,8 @@ struct bst_link *__bst_lower_bound(const struct bst_link *link,
 	return lb;
 }
 
-struct bst_link *__bst_upper_bound(const struct bst_link *link,
-				   __bst_compare_t compare,
+struct bst_link *bstlink_upper_bound(const struct bst_link *link,
+				   bstlink_compare_t compare,
 				   const void *arg)
 {
 	struct bst_link *ub = NULL;
@@ -110,8 +110,8 @@ struct bst_link *__bst_upper_bound(const struct bst_link *link,
 	return ub;
 }
 
-void __bst_lower_upper_bound(const struct bst_link *link,
-			     __bst_compare_t compare,
+void bstlink_lower_upper_bound(const struct bst_link *link,
+			     bstlink_compare_t compare,
 			     const void *arg,
 			     struct bst_link **plb,
 			     struct bst_link **pub)
@@ -130,14 +130,14 @@ void __bst_lower_upper_bound(const struct bst_link *link,
 	}
 }
 
-size_t __bst_count(const struct bst_link *link,
-		   __bst_compare_t compare,
+size_t bstlink_count(const struct bst_link *link,
+		   bstlink_compare_t compare,
 		   const void *arg)
 {
 	size_t c = 0;
 	struct bst_link *lb, *ub;
 
-	__bst_lower_upper_bound(link, compare, arg, &lb, &ub);
+	bstlink_lower_upper_bound(link, compare, arg, &lb, &ub);
 
 	while (lb != ub) {
 		++c;
@@ -147,36 +147,36 @@ size_t __bst_count(const struct bst_link *link,
 	return c;
 }
 
-void __bst_destroy(struct bst_link *link,
-		   __bst_destroy_t destroy,
+void bstlink_destroy(struct bst_link *link,
+		   bstlink_destroy_t destroy,
 		   const void *arg)
 {
 	while (link) {
 		struct bst_link *right = link->right;
-		__bst_destroy(link->left, destroy, arg);
+		bstlink_destroy(link->left, destroy, arg);
 		destroy(link, arg);
 		link = right;
 	}
 }
 
 /* inorder-traverse */
-void __bst_visit(struct bst_link *link,
-		 __bst_visit_t visit,
+void bstlink_visit(struct bst_link *link,
+		 bstlink_visit_t visit,
 		 const void *arg)
 {
 	while (link) {
-		__bst_visit(link->left, visit, arg);
+		bstlink_visit(link->left, visit, arg);
 		visit(link, arg);
 		link = link->right;
 	}
 }
 
-bool __bst_visit_cond(struct bst_link *link,
-		      __bst_visit_cond_t visit_cond,
+bool bstlink_visit_cond(struct bst_link *link,
+		      bstlink_visit_cond_t visit_cond,
 		      const void *arg)
 {
 	while (link) {
-		if (!__bst_visit_cond(link->left, visit_cond, arg) ||
+		if (!bstlink_visit_cond(link->left, visit_cond, arg) ||
 		    !visit_cond(link, arg))
 			return false;
 
@@ -186,7 +186,7 @@ bool __bst_visit_cond(struct bst_link *link,
 	return true;
 }
 
-size_t __bst_depth(const struct bst_link *link, bool bmax)
+size_t bstlink_depth(const struct bst_link *link, bool bmax)
 {
 	size_t depth = 0;
 

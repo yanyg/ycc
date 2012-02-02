@@ -20,6 +20,7 @@
 
 #include <ycc/algos/avltree.h>
 
+#if 0
 static inline bool
 __avl_insert(struct avl_node *node,
 	    struct avl_root *avl,
@@ -76,6 +77,7 @@ bool avl_insert_unique(struct avl_node *node,
 {
 	return __avl_insert(node, avl, compare_link, arg, true);
 }
+#endif
 
 void avl_insert_depth(struct avl_node *node, struct avl_root *avl)
 {
