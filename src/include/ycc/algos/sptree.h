@@ -71,7 +71,7 @@ static inline struct spt_node *spt_prev(const struct spt_node* node)
 	return __BSTLINK_PREV(node, struct spt_node);
 }
 
-void __spt_splay(struct spt_node *node, struct spt_root *spt);
+void __spt_splay(struct spt_node *node, struct spt_node **proot);
 
 void spt_erase(struct spt_node *node, struct spt_root *spt);
 
@@ -86,7 +86,7 @@ spt_find(const struct spt_root *spt,
 					    struct spt_node);
 
 	if (p)
-		__spt_splay(p, (struct spt_root*)spt);
+		__spt_splay(p, (struct spt_node**)&spt->node);
 
 	return p;
 }
@@ -130,7 +130,7 @@ spt_insert(struct spt_node *node,
 	  const void *arg)
 {
 	(void)__BSTLINK_INSERT(node, &spt->node, compare_link, arg, false);
-	__spt_splay(node, spt);
+	__spt_splay(node, &spt->node);
 }
 
 static inline bool
@@ -143,7 +143,7 @@ spt_insert_unique(struct spt_node *node,
 {
 	
 	if (__BSTLINK_INSERT(node, &spt->node, compare_link, arg, false)) {
-		__spt_splay(node, spt);
+		__spt_splay(node, &spt->node);
 		return true;
 	}
 
@@ -154,7 +154,7 @@ static inline void
 spt_replace(struct spt_node *victim, struct spt_node *new, struct spt_root *spt)
 {
 	__BSTLINK_REPLACE(victim, new, &spt->node);
-	__spt_splay(new, spt);
+	__spt_splay(new, &spt->node);
 }
 
 static inline void spt_erase_range(struct spt_node *beg,

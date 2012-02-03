@@ -78,13 +78,13 @@ __avl_erase_rebalance(struct avl_node *node,
 	struct avl_node *other;
 
 	/* empty tree */
-	assert(parent != NULL);
-	assert(*proot);
-	if (!*proot)
-		return;
+	assert(parent);
 
-	while (node != *proot && (!node || node->depth + 1 != parent->depth)) {
+	while (node != *proot) {
 		unsigned depth = node ? node->depth : 1;
+
+		if (depth + 1 == parent->depth)
+			return;
 
 		if (parent->left == node) {
 			other = parent->right;
@@ -94,10 +94,12 @@ __avl_erase_rebalance(struct avl_node *node,
 				goto down;
 			}
 
-			if (other->depth - depth == 1)
+			if (other->depth == depth + 1)
 				return;
 
-			if (other->left->depth > other->right->depth) {
+			if (other->left &&
+			    (!other->right ||
+			     other->left->depth > other->right->depth)) {
 				++other->left->depth;
 				--other->depth;
 				__BSTLINK_ROTATE_RIGHT(other, proot);
@@ -110,7 +112,7 @@ __avl_erase_rebalance(struct avl_node *node,
 			} else
 				parent->depth -= 2;
 
-			__BSTLINK_ROTATE_RIGHT(parent, proot);
+			__BSTLINK_ROTATE_LEFT(parent, proot);
 			parent = other;
 		} else {
 			other = parent->left;
@@ -120,23 +122,25 @@ __avl_erase_rebalance(struct avl_node *node,
 				goto down;
 			}
 
-			if (other->depth - depth == 1)
+			if (other->depth == depth + 1)
 				return;
 
-			if (other->right->depth > other->left->depth) {
-				++other->right->depth;
-				--other->depth;
-				__BSTLINK_ROTATE_LEFT(other, proot);
-				other = other->parent;
+			if (other->right &&
+			    (!other->left ||
+			     other->right->depth > other->left->depth)) {
+					++other->right->depth;
+					--other->depth;
+					__BSTLINK_ROTATE_LEFT(other, proot);
+					other = other->parent;
 			}
 
-			if (other->right && other->right->depth > depth){
+			if (other->right && other->right->depth > depth) {
 				--parent->depth;
 				++other->depth;
 			} else
 				parent->depth -= 2;
 
-			__BSTLINK_ROTATE_LEFT(parent, proot);
+			__BSTLINK_ROTATE_RIGHT(parent, proot);
 			parent = other;
 		}
 
@@ -154,68 +158,10 @@ __avl_erase_rebalance(struct avl_node *node,
 	if (parent)						\
 		__avl_erase_rebalance(child, parent, proot);
 
-//#include "bstree-internal.h"
-//void avl_erase(struct avl_node *node, struct avl_root *avl)
-//{
-//	__BSTLINK_ERASE(node, &avl->node);
-//}
-#if 1
+#include "bstree-internal.h"
 void avl_erase(struct avl_node *node, struct avl_root *avl)
 {
-	struct avl_node *child, *parent;
-
-	if (!node->left || !node->right) {
-		if (!node->left)
-			child = node->right;
-		else
-			child = node->left;
-
-		parent = node->parent;
-		if (child)
-			child->parent = parent;
-
-		if (parent) {
-			if (parent->left == node)
-				parent->left = child;
-			else
-				parent->right = child;
-		} else
-			avl->node = child;
-	} else {
-		struct avl_node *scor = node->right; /* scor: successor */
-		while (scor->left)
-			scor = scor->left;
-
-		if (node->parent) {
-			if (node->parent->left == node)
-				node->parent->left = scor;
-			else
-				node->parent->right = scor;
-		} else
-			avl->node = scor;
-
-		child = scor->right;
-		parent = scor->parent;
-
-		if (parent == node)
-			parent = scor;
-		else {
-			if (child)
-				child->parent = parent;
-			parent->left = child;
-			scor->right = node->right;
-			node->right->parent = scor;
-		}
-
-		scor->parent = node->parent;
-		scor->left = node->left;
-		avl_set_depth(scor, avl_depth(node));
-		node->left->parent = scor;
-	}
-
-	if (parent)
-		__avl_erase_rebalance(child, parent, &avl->node);
+	__BSTLINK_ERASE(node, &avl->node);
 }
-#endif
 
 /* eof */
