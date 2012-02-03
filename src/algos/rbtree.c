@@ -20,65 +20,6 @@
 
 #include <ycc/algos/rbtree.h>
 
-#if 0
-static inline bool
-__rb_insert(struct rb_node *node,
-	    struct rb_root *rb,
-	    int (*compare_link)(const struct rb_node *node1,
-				const struct rb_node *node2,
-				const void *arg),
-	    const void *arg,
-	    bool bunique)
-{
-	int icmp;
-	struct rb_node *parent = NULL;
-	struct rb_node **pnode = &rb->node;
-
-	while (*pnode) {
-		parent = *pnode;
-		icmp = compare_link(*pnode, node, arg);
-
-		if (icmp > 0)
-			pnode = &(*pnode)->left;
-		else {
-			/* For bunique == true,
-			 * if rbtree had have a node which value equals to
-			 * the insert-node, the insert-operation fail.
-			 */
-			 if (!icmp && bunique)
-				 return false;
-
-			pnode = &(*pnode)->right;
-		}
-	}
-
-	rb_link_node(node, parent, pnode);
-	rb_insert_color(node, rb);
-
-	return true;
-}
-void rb_insert(struct rb_node *node,
-	       struct rb_root *rb,
-	       int (*compare_link)(const struct rb_node *node1,
-				   const struct rb_node *node2,
-				   const void *arg),
-	       const void *arg)
-{
-	(void)__rb_insert(node, rb, compare_link, arg, false);
-}
-
-bool rb_insert_unique(struct rb_node *node,
-	       struct rb_root *rb,
-	       int (*compare_link)(const struct rb_node *node1,
-				   const struct rb_node *node2,
-				   const void *arg),
-	       const void *arg)
-{
-	return __rb_insert(node, rb, compare_link, arg, true);
-}
-
-#endif
-
 void rb_insert_color(struct rb_node *node, struct rb_root *rb)
 {
 	struct rb_node *parent, *gparent;
@@ -104,7 +45,7 @@ void rb_insert_color(struct rb_node *node, struct rb_root *rb)
 			}
 
 			if (node == parent->right) {
-				__bstlink_rotate_left(parent, proot);
+				__BSTLINK_ROTATE_LEFT(parent, proot);
 				node = parent;
 				/* parent had been changed, need reset */
 				parent = node->parent;	
@@ -112,7 +53,7 @@ void rb_insert_color(struct rb_node *node, struct rb_root *rb)
 
 			rb_set_black(parent);
 			rb_set_red(gparent);
-			__bstlink_rotate_right(gparent, proot);
+			__BSTLINK_ROTATE_RIGHT(gparent, proot);
 		} else {
 			register struct rb_node *uncle = gparent->left;
 
@@ -125,23 +66,24 @@ void rb_insert_color(struct rb_node *node, struct rb_root *rb)
 			}
 
 			if (node == parent->left) {
-				__bstlink_rotate_right(parent, proot);
+				__BSTLINK_ROTATE_RIGHT(parent, proot);
 				node = parent;
 				parent = node->parent;
 			}
 
 			rb_set_black(parent);
 			rb_set_red(gparent);
-			__bstlink_rotate_left(gparent, proot);
+			__BSTLINK_ROTATE_LEFT(gparent, proot);
 		}
 	}
 
 	rb_set_black(*proot);
 }
 
-static inline void __rb_erase_color(struct rb_node *node,
-				    struct rb_node *parent,
-				    struct rb_root *rb)
+static inline void
+__rb_erase_color(struct rb_node *node,
+		 struct rb_node *parent,
+		 struct rb_root *rb)
 {
 	struct rb_node *other;
 	struct rb_node **proot = &rb->node;
@@ -159,7 +101,7 @@ static inline void __rb_erase_color(struct rb_node *node,
 			if (rb_is_red(other)) {
 				rb_set_black(other);
 				rb_set_red(parent);
-				__bstlink_rotate_left(parent, proot);
+				__BSTLINK_ROTATE_LEFT(parent, proot);
 				other = parent->right;
 			}
 
@@ -173,14 +115,14 @@ static inline void __rb_erase_color(struct rb_node *node,
 				    rb_is_black(other->right)) {
 					rb_set_black(other->left);
 					rb_set_red(other);
-					__bstlink_rotate_right(other, proot);
+					__BSTLINK_ROTATE_RIGHT(other, proot);
 					other = parent->right;
 				}
 				rb_set_color(other, rb_color(parent));
 				rb_set_black(parent);
 				/* now other->right cannot be null */
 				rb_set_black(other->right);
-				__bstlink_rotate_left(parent, proot);
+				__BSTLINK_ROTATE_LEFT(parent, proot);
 				break;
 			}
 		} else {
@@ -188,7 +130,7 @@ static inline void __rb_erase_color(struct rb_node *node,
 			if (rb_is_red(other)) {
 				rb_set_black(other);
 				rb_set_red(parent);
-				__bstlink_rotate_right(parent, proot);
+				__BSTLINK_ROTATE_RIGHT(parent, proot);
 				other = parent->left;
 			}
 
@@ -201,13 +143,13 @@ static inline void __rb_erase_color(struct rb_node *node,
 				if (!other->left || rb_is_black(other->left)) {
 					rb_set_black(other->right);
 					rb_set_red(other);
-					__bstlink_rotate_left(other, proot);
+					__BSTLINK_ROTATE_LEFT(other, proot);
 					other = parent->left;
 				}
 				rb_set_color(other, rb_color(parent));
 				rb_set_black(parent);
 				rb_set_black(other->left);
-				__bstlink_rotate_right(parent, proot);
+				__BSTLINK_ROTATE_RIGHT(parent, proot);
 				break;
 			}
 		}
@@ -277,61 +219,5 @@ void rb_erase(struct rb_node *node, struct rb_root *rb)
 	if (color == RB_COLOR_BLACK)
 		__rb_erase_color(child, parent, rb);
 }
-
-void rb_replace(struct rb_node *victim, struct rb_node *new,
-		struct rb_root *root)
-{
-	struct rb_node *parent = victim->parent;
-
-	if (parent) {
-		if (victim == parent->left)
-			parent->left = new;
-		else
-			parent->right = new;
-	} else {
-		root->node = new;
-	}
-
-	if (victim->left)
-		victim->left->parent = new;
-	if (victim->right)
-		victim->right->parent = new;
-
-	*new = *victim;
-}
-
-#if 0
-void rb_erase_range(struct rb_node *beg,
-		    struct rb_node *end,
-		    struct rb_root *rb)
-{
-	struct rb_node *del;
-
-	while (beg != end) {
-		del = beg;
-		beg = rb_next(beg);
-		rb_erase(del, rb);
-	}
-}
-
-void
-rb_erase_equal(struct rb_root *rb,
-	       int (*compare)(const struct rb_node *node, const void *arg),
-	       void (*destroy)(struct rb_node *node, const void *arg),
-	       const void *arg_compare,
-	       const void *arg_destroy)
-{
-	struct rb_node *beg, *end, *del;
-
-	rb_lower_upper_bound(rb, compare, arg_compare, &beg, &end);
-
-	while (beg != end) {
-		del = beg;
-		beg = rb_next(beg);
-		rb_erase(del, rb);
-		destroy(del, arg_destroy);
-	}
-}
-#endif
 
 /* eof */

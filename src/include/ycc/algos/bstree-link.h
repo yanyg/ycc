@@ -50,6 +50,10 @@ struct bst_link *bstlink_last(const struct bst_link *link);
 struct bst_link *bstlink_next(const struct bst_link *link);
 struct bst_link *bstlink_prev(const struct bst_link *link);
 
+void bstlink_replace(struct bst_link *victim,
+		     struct bst_link *new,
+		     struct bst_link **proot);
+
 /* auto-convert macros */
 #define __BSTLINK_ROTATE_LEFT(link, pproot)				\
 		bstlink_rotate_left					\
@@ -91,6 +95,14 @@ struct bst_link *bstlink_prev(const struct bst_link *link);
 		bstlink_prev						\
 		(							\
 			(const struct bst_link*)(link)			\
+		)
+
+#define __BSTLINK_REPLACE(victim, new, proot)				\
+		bstlink_replace						\
+		(							\
+			(struct bst_link*)(victim),			\
+			(struct bst_link*)(new),			\
+			(struct bst_link**)(proot)			\
 		)
 
 /*
@@ -301,8 +313,6 @@ size_t bstlink_depth(const struct bst_link *link, bool bmax);
 			(struct bst_link**)(proot),			\
 			(bstlink_compare_link_t)(compare_link),		\
 			(const void*)(arg),				\
-			(struct bst_link**)(plower),			\
-			(struct bst_link**)(pupper)			\
 			(bunique)					\
 		)
 
@@ -315,7 +325,7 @@ size_t bstlink_depth(const struct bst_link *link, bool bmax);
 			(const void*)(arg)				\
 		)
 
-#define __BSTLINK_ERASE_EQUAL(root, compare, erase, destroy		\
+#define __BSTLINK_ERASE_EQUAL(root, compare, erase, destroy,		\
 			      arg_compare, arg_erase, arg_destroy)	\
 		bstlink_erase_equal					\
 		(							\
@@ -353,7 +363,7 @@ size_t bstlink_depth(const struct bst_link *link, bool bmax);
 		)
 
 #define __BSTLINK_VISIT_COND(link, visit_cond, arg)			\
-		bstlink_visit						\
+		bstlink_visit_cond					\
 		(							\
 			(struct bst_link*)(link),			\
 			(bstlink_visit_cond_t)(visit_cond),		\

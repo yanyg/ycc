@@ -185,4 +185,218 @@ struct bst_link *bstlink_prev(const struct bst_link *link)
 	return (struct bst_link*)parent;
 }
 
+void bstlink_replace(struct bst_link *victim,
+		     struct bst_link *new,
+		     struct bst_link **proot)
+{
+	struct bst_link *parent = victim->parent;
+
+	if (parent) {
+		if (victim == parent->left)
+			parent->left = new;
+		else
+			parent->right = new;
+	} else
+		*proot = new;
+
+	if (victim->left)
+		victim->left->parent = new;
+	if (victim->right)
+		victim->right->parent = new;
+
+	*new = *victim;
+}
+
+bool
+bstlink_insert_prepare(struct bst_link *node,
+		       struct bst_link **proot,
+		       int (*compare_link)(const struct bst_link *link1,
+					   const struct bst_link *link2,
+					   const void *arg),
+		       const void *arg,
+		       bool bunique)
+{
+	struct bst_link *parent = NULL;
+
+	while (*proot) {
+		int icmp = compare_link(*proot, node, arg);
+
+		parent = *proot;
+
+		if (icmp > 0)
+			proot = &(*proot)->left;
+		else {
+			/* For bunique == true,
+			 * if rbtree had have a node which value equals to
+			 * the insert-node, the insert-operation fail.
+			 */
+			 if (!icmp && bunique)
+				 return false;
+
+			proot = &(*proot)->right;
+		}
+	}
+
+	bstlink_init(node, parent, proot);
+
+	return true;
+}
+
+struct bst_link *
+bstlink_find(const struct bst_link *link,
+	     bstlink_compare_t compare,
+	     const void *arg)
+{
+	struct bst_link *r = NULL;
+
+	while(link) {
+		int icmp = compare(link, arg);
+
+		if (icmp < 0)
+			link = link->right;
+		else {
+			if (icmp == 0)
+				r = (struct bst_link*)link;
+			else if (r)
+				break;
+
+			link = link->left;
+		}
+	}
+
+	return r;
+}
+
+struct bst_link *
+bstlink_lower_bound(const struct bst_link *link,
+		    bstlink_compare_t compare,
+		    const void *arg)
+{
+	struct bst_link *lb = NULL;
+
+	while (link) {
+		if (compare(link, arg) >= 0) {
+			lb = (struct bst_link*)link;
+			link = link->left;
+		} else
+			link = link->right;
+	}
+
+	return lb;
+}
+
+struct bst_link *
+bstlink_upper_bound(const struct bst_link *link,
+		    bstlink_compare_t compare,
+		    const void *arg)
+{
+	struct bst_link *ub = NULL;
+
+	while (link) {
+		if (compare(link, arg) > 0) {
+			ub = (struct bst_link*)link;
+			link = link->left;
+		} else
+			link = link->right;
+	}
+
+	return ub;
+}
+
+void bstlink_lower_upper_bound(const struct bst_link *link,
+			       bstlink_compare_t compare,
+			       const void *arg,
+			       struct bst_link **plb,
+			       struct bst_link **pub)
+{
+	*plb = *pub = NULL;
+
+	while (link) {
+		int icmp = compare(link, arg);
+		if (icmp >= 0) {
+			*plb = (struct bst_link*)link;
+			if (icmp)
+				*pub = (struct bst_link*)link;
+			link = link->left;
+		} else
+		link = link->right;
+	}
+}
+
+size_t bstlink_count(const struct bst_link *link,
+		     bstlink_compare_t compare,
+		     const void *arg)
+{
+	size_t c = 0;
+	struct bst_link *lb, *ub;
+
+	bstlink_lower_upper_bound(link, compare, arg, &lb, &ub);
+
+	while (lb != ub) {
+		++c;
+		lb = bstlink_next(lb);
+	}
+
+	return c;
+}
+
+void bstlink_destroy(struct bst_link *link,
+		     bstlink_destroy_t destroy,
+		     const void *arg)
+{
+	while (link) {
+		struct bst_link *right = link->right;
+		bstlink_destroy(link->left, destroy, arg);
+		destroy(link, arg);
+		link = right;
+	}
+}
+
+/* inorder-traverse */
+void bstlink_visit(struct bst_link *link,
+		   bstlink_visit_t visit,
+		   const void *arg)
+{
+	while (link) {
+		bstlink_visit(link->left, visit, arg);
+		visit(link, arg);
+		link = link->right;
+	}
+}
+
+bool bstlink_visit_cond(struct bst_link *link,
+			bstlink_visit_cond_t visit_cond,
+			const void *arg)
+{
+	while (link) {
+		if (!bstlink_visit_cond(link->left, visit_cond, arg) ||
+		    !visit_cond(link, arg))
+			return false;
+
+		link = link->right;
+	}
+
+	return true;
+}
+
+size_t bstlink_depth(const struct bst_link *link, bool bmax)
+{
+	size_t depth = 0;
+
+	if (link) {
+		size_t left = bstlink_depth(link->left, bmax);
+		size_t right = bstlink_depth(link->right, bmax);
+#define __BSTLINK_MAX(x, y)	( (x) > (y) ? (x) : (y) )
+#define __BSTLINK_MIN(x, y)	( (x) < (y) ? (x) : (y) )
+		if (bmax)
+			depth = __BSTLINK_MAX(left, right);
+		else
+			depth = __BSTLINK_MIN(left, right);
+
+		++depth;
+	}
+
+	return depth;
+}
+
 /* eof */
