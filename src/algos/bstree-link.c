@@ -379,24 +379,24 @@ bool bstlink_visit_cond(struct bst_link *link,
 	return true;
 }
 
-size_t bstlink_depth(const struct bst_link *link, bool bmax)
+size_t bstlink_height(const struct bst_link *link, bool bmax)
 {
-	size_t depth = 0;
+	size_t h = 0;
 
 	if (link) {
-		size_t left = bstlink_depth(link->left, bmax);
-		size_t right = bstlink_depth(link->right, bmax);
+		size_t left = bstlink_height(link->left, bmax);
+		size_t right = bstlink_height(link->right, bmax);
 #define __BSTLINK_MAX(x, y)	( (x) > (y) ? (x) : (y) )
 #define __BSTLINK_MIN(x, y)	( (x) < (y) ? (x) : (y) )
 		if (bmax)
-			depth = __BSTLINK_MAX(left, right);
+			h = __BSTLINK_MAX(left, right);
 		else
-			depth = __BSTLINK_MIN(left, right);
+			h = __BSTLINK_MIN(left, right);
 
-		++depth;
+		++h;
 	}
 
-	return depth;
+	return h;
 }
 
 /* eof */

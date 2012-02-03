@@ -231,12 +231,12 @@ rb_visit_cond(const struct rb_root *rb,
 }
 
 static inline size_t
-rb_depth(struct rb_root *rb, bool bmax)
+rb_height(struct rb_root *rb, bool bmax)
 {
-	return __BSTLINK_DEPTH(rb->node, bmax);
+	return __BSTLINK_HEIGHT(rb->node, bmax);
 }
-#define rb_depth_max(rb)	rb_depth(rb, true)
-#define rb_depth_min(rb)	rb_depth(rb, false)
+#define rb_height_max(rb)	rb_height(rb, true)
+#define rb_height_min(rb)	rb_height(rb, false)
 
 struct rb_root *rb_alloc(size_t num);
 void rb_free(struct rb_root *rb,

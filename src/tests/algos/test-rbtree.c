@@ -66,7 +66,7 @@ int main()
 	}
 
 #ifndef NDEBUG
-	printf("depth: {%zu, %zu}\n", rb_depth_min(&rb), rb_depth_max(&rb));
+	printf("height: {%zu, %zu}\n", rb_height_min(&rb), rb_height_max(&rb));
 #endif
 
 	rb_node = rb_first(&rb);

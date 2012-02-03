@@ -258,7 +258,7 @@ bool bstlink_visit_cond(struct bst_link *link,
 		      bstlink_visit_cond_t visit_cond,
 		      const void *arg);
 
-size_t bstlink_depth(const struct bst_link *link, bool bmax);
+size_t bstlink_height(const struct bst_link *link, bool bmax);
 
 #define __BSTLINK_INIT(link, parent, plink)				\
 		bstlink_init						\
@@ -370,15 +370,12 @@ size_t bstlink_depth(const struct bst_link *link, bool bmax);
 			(const void*)(arg)				\
 		)
 
-#define __BSTLINK_DEPTH(link, bmax)					\
-		bstlink_depth						\
+#define __BSTLINK_HEIGHT(link, bmax)					\
+		bstlink_height						\
 		(							\
 			(const struct bst_link*)(link),			\
 			(bmax)						\
 		)
-
-#define __BSTLINK_DEPTH_MAX(link) __BSTLINK_DEPTH((link),true)
-#define __BSTLINK_DEPTH_MIN(link) __BSTLINK_DEPTH((link),false)
 
 __END_DECLS
 
