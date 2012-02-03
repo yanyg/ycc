@@ -80,12 +80,9 @@ __avl_erase_depth(struct avl_node *node,
 	if (*proot)
 		return;
 
-	if (!node) {
-		static struct avl_node dummy = { .depth = 0, };
-		node = &dummy;
-	}
+	while (node != *proot && (!node || node->depth + 1 != parent->depth)) {
+		unsigned depth = node ? node->depth : 1;
 
-	while (node != *proot && node->depth + 1 != parent->depth) {
 		if (parent->left == node) {
 			other = parent->right;
 
@@ -94,7 +91,7 @@ __avl_erase_depth(struct avl_node *node,
 				goto down;
 			}
 
-			if (other->depth - node->depth == 1)
+			if (other->depth - depth == 1)
 				return;
 
 			if (other->left->depth > other->right->depth) {
@@ -104,7 +101,7 @@ __avl_erase_depth(struct avl_node *node,
 				other = other->parent;
 			}
 
-			if (other->left && other->left->depth > node->depth) {
+			if (other->left && other->left->depth > depth) {
 				--parent->depth;
 				++other->depth;
 			} else
@@ -120,7 +117,7 @@ __avl_erase_depth(struct avl_node *node,
 				goto down;
 			}
 
-			if (other->depth - node->depth == 1)
+			if (other->depth - depth == 1)
 				return;
 
 			if (other->right->depth > other->left->depth) {
@@ -130,7 +127,7 @@ __avl_erase_depth(struct avl_node *node,
 				other = other->parent;
 			}
 
-			if (other->right && other->right->depth > node->depth){
+			if (other->right && other->right->depth > depth){
 				--parent->depth;
 				++other->depth;
 			} else
