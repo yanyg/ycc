@@ -4,6 +4,10 @@
 
 #include <ycc/algos/bstree.h>
 
+#ifndef SIZE
+#define SIZE 1024*100
+#endif
+
 struct node {
 	int val;
 	struct bst_node bst_node;
@@ -60,7 +64,7 @@ int main()
 
 	srand( (unsigned int)time(NULL) );
 
-	for (i = 0; i < 1024*10; ++i) {
+	for (i = 0; i < SIZE; ++i) {
 		p = node_alloc(rand()%100 + 100);
 		bst_insert(&p->bst_node, &bst, compare_link, NULL);
 	}

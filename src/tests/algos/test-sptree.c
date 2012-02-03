@@ -4,6 +4,10 @@
 
 #include <ycc/algos/sptree.h>
 
+#ifndef SIZE
+#define SIZE 1024*100
+#endif
+
 struct node {
 	int val;
 	struct spt_node spt_node;
@@ -60,7 +64,7 @@ int main()
 
 	srand( (unsigned int)time(NULL) );
 
-	for (i = 0; i < 1024*10; ++i) {
+	for (i = 0; i < SIZE; ++i) {
 		p = node_alloc(rand()%100 + 100);
 		spt_insert(&p->spt_node, &spt, compare_link, NULL);
 	}
@@ -82,13 +86,22 @@ int main()
 			spt_node = spt_next(spt_node);
 		}
 	}
+#ifndef NDEBUG
+	printf("height: {%zu, %zu}\n", spt_height_min(&spt), spt_height_max(&spt));
+#endif
 	spt_node = spt_first(&spt);
 	printf("1 node_cnt: %d\n", node_cnt);
 	i = 105;
 	spt_erase_equal(&spt, compare, destroy, &i, NULL);
+#ifndef NDEBUG
+	printf("height: {%zu, %zu}\n", spt_height_min(&spt), spt_height_max(&spt));
+#endif
 	printf("2 node_cnt: %d\n", node_cnt);
 	spt_clear(&spt, destroy, NULL);
 	printf("3 node_cnt: %d\n", node_cnt);
+#ifndef NDEBUG
+	printf("height: {%zu, %zu}\n", spt_height_min(&spt), spt_height_max(&spt));
+#endif
 	spt_node = spt_first(&spt);
 	if (spt_node) {
 		printf("error: spt_node should be null\n");
