@@ -93,7 +93,7 @@ static inline struct rb_node *rb_prev(const struct rb_node* node)
 	return __BSTLINK_PREV(node, struct rb_node);
 }
 
-void rb_insert_color(struct rb_node *node, struct rb_root *rb);
+void rb_insert_rebalance(struct rb_node *node, struct rb_root *rb);
 void rb_erase(struct rb_node *node, struct rb_root *rb);
 
 
@@ -148,7 +148,7 @@ rb_insert(struct rb_node *node,
 	(void)__BSTLINK_INSERT_PREPARE(node, &rb->node, compare_link,
 				       arg, false);
 	rb_set_red(node);
-	rb_insert_color(node, rb);
+	rb_insert_rebalance(node, rb);
 }
 
 static inline bool
@@ -164,7 +164,7 @@ rb_insert_unique(struct rb_node *node,
 				       arg, false))
 	{
 		rb_set_red(node);
-		rb_insert_color(node, rb);
+		rb_insert_rebalance(node, rb);
 		return true;
 	}
 

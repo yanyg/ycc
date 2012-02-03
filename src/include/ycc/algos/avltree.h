@@ -86,7 +86,7 @@ static inline struct avl_node *avl_prev(const struct avl_node* node)
 	return __BSTLINK_PREV(node, struct avl_node);
 }
 
-void avl_insert_depth(struct avl_node *node, struct avl_root *avl);
+void avl_insert_rebalance(struct avl_node *node, struct avl_root *avl);
 void avl_erase(struct avl_node *node, struct avl_root *avl);
 
 
@@ -141,7 +141,7 @@ avl_insert(struct avl_node *node,
 	(void)__BSTLINK_INSERT_PREPARE(node, &avl->node, compare_link,
 				       arg, false);
 	avl_set_depth(node, 1);
-	avl_insert_depth(node, avl);
+	avl_insert_rebalance(node, avl);
 }
 
 static inline bool
@@ -157,7 +157,7 @@ avl_insert_unique(struct avl_node *node,
 				       arg, false))
 	{
 		avl_set_depth(node, 1);
-		avl_insert_depth(node, avl);
+		avl_insert_rebalance(node, avl);
 		return true;
 	}
 

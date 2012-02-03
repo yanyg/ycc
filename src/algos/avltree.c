@@ -20,7 +20,7 @@
 
 #include <ycc/algos/avltree.h>
 
-void avl_insert_depth(struct avl_node *node, struct avl_root *avl)
+void avl_insert_rebalance(struct avl_node *node, struct avl_root *avl)
 {
 	struct avl_node *parent, *gparent;
 	struct avl_node ** const proot = &avl->node;
@@ -69,9 +69,9 @@ void avl_insert_depth(struct avl_node *node, struct avl_root *avl)
 }
 
 static inline void
-__avl_erase_depth(struct avl_node *node,
-		  struct avl_node *parent,
-		  struct avl_root *avl)
+__avl_erase_rebalance(struct avl_node *node,
+		      struct avl_node *parent,
+		      struct avl_root *avl)
 {
 	struct avl_node *other;
 	struct avl_node **proot = &avl->node;
@@ -197,7 +197,7 @@ void avl_erase(struct avl_node *node, struct avl_root *avl)
 	}
 
 	if (parent)
-		__avl_erase_depth(child, parent, avl);
+		__avl_erase_rebalance(child, parent, avl);
 }
 
 /* eof */

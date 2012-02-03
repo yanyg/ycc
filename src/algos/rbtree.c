@@ -20,7 +20,7 @@
 
 #include <ycc/algos/rbtree.h>
 
-void rb_insert_color(struct rb_node *node, struct rb_root *rb)
+void rb_insert_rebalance(struct rb_node *node, struct rb_root *rb)
 {
 	struct rb_node *parent, *gparent;
 	struct rb_node ** const proot = &rb->node;
@@ -81,9 +81,9 @@ void rb_insert_color(struct rb_node *node, struct rb_root *rb)
 }
 
 static inline void
-__rb_erase_color(struct rb_node *node,
-		 struct rb_node *parent,
-		 struct rb_root *rb)
+__rb_erase_rebalance(struct rb_node *node,
+		     struct rb_node *parent,
+		     struct rb_root *rb)
 {
 	struct rb_node *other;
 	struct rb_node **proot = &rb->node;
@@ -217,7 +217,7 @@ void rb_erase(struct rb_node *node, struct rb_root *rb)
 	}
 
 	if (color == RB_COLOR_BLACK)
-		__rb_erase_color(child, parent, rb);
+		__rb_erase_rebalance(child, parent, rb);
 }
 
 /* eof */
