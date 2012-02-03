@@ -138,6 +138,13 @@ rb_lower_upper_bound(const struct rb_root *rb,
 }
 
 static inline void
+__rb_insert_rest(struct rb_node *node, struct rb_root *rb)
+{
+	rb_set_red(node);
+	rb_insert_rebalance(node, rb);
+}
+
+static inline void
 rb_insert(struct rb_node *node,
 	  struct rb_root *rb,
 	  int (*compare_link)(const struct rb_node *node1,
@@ -147,8 +154,7 @@ rb_insert(struct rb_node *node,
 {
 	(void)__BSTLINK_INSERT(node, &rb->node, compare_link,
 				       arg, false);
-	rb_set_red(node);
-	rb_insert_rebalance(node, rb);
+	__rb_insert_rest(node, rb);
 }
 
 static inline bool
@@ -163,8 +169,7 @@ rb_insert_unique(struct rb_node *node,
 	if (__BSTLINK_INSERT(node, &rb->node, compare_link,
 				       arg, false))
 	{
-		rb_set_red(node);
-		rb_insert_rebalance(node, rb);
+		__rb_insert_rest(node, rb);
 		return true;
 	}
 

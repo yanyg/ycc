@@ -60,7 +60,7 @@ int main()
 
 	srand( (unsigned int)time(NULL) );
 
-	for (i = 0; i < 1024*1024; ++i) {
+	for (i = 0; i < 1024*10; ++i) {
 		p = node_alloc(rand()%100 + 100);
 		bst_insert(&p->bst_node, &bst, compare_link, NULL);
 	}
