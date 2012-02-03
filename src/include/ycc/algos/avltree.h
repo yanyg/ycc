@@ -138,7 +138,7 @@ avl_insert(struct avl_node *node,
 			      const void *arg),
 	  const void *arg)
 {
-	(void)__BSTLINK_INSERT_PREPARE(node, &avl->node, compare_link,
+	(void)__BSTLINK_INSERT(node, &avl->node, compare_link,
 				       arg, false);
 	avl_set_depth(node, 1);
 	avl_insert_rebalance(node, avl);
@@ -153,7 +153,7 @@ avl_insert_unique(struct avl_node *node,
 		 const void *arg)
 {
 	
-	if (__BSTLINK_INSERT_PREPARE(node, &avl->node, compare_link,
+	if (__BSTLINK_INSERT(node, &avl->node, compare_link,
 				       arg, false))
 	{
 		avl_set_depth(node, 1);

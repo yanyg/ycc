@@ -147,8 +147,8 @@ static inline void bstlink_init(struct bst_link *link,
  *	NULL if no-match found.
  */
 struct bst_link *bstlink_find(const struct bst_link *link,
-			    bstlink_compare_t compare,
-			    const void *arg);
+			      bstlink_compare_t compare,
+			      const void *arg);
 
 /*
  * bstlink_lower_bound
@@ -168,8 +168,8 @@ struct bst_link *bstlink_find(const struct bst_link *link,
  *	NULL if no-match found.
  */
 struct bst_link *bstlink_lower_bound(const struct bst_link *link,
-				   bstlink_compare_t compare,
-				   const void *arg);
+				     bstlink_compare_t compare,
+				     const void *arg);
 
 /*
  * bstlink_upper_bound
@@ -189,21 +189,21 @@ struct bst_link *bstlink_lower_bound(const struct bst_link *link,
  *	NULL if no-match found.
  */
 struct bst_link *bstlink_upper_bound(const struct bst_link *link,
-				   bstlink_compare_t compare,
-				   const void *arg);
+				     bstlink_compare_t compare,
+				     const void *arg);
 
 /* bstlink_lower_upper_bound -- the merge of two routines above */
 void bstlink_lower_upper_bound(const struct bst_link *link,
-			     bstlink_compare_t compare,
-			     const void *arg,
-			     struct bst_link **plb,
-			     struct bst_link **pub);
+			       bstlink_compare_t compare,
+			       const void *arg,
+			       struct bst_link **plb,
+			       struct bst_link **pub);
 
-bool bstlink_insert_prepare(struct bst_link *link,
-			  struct bst_link **proot,
-			  bstlink_compare_link_t compare_link,
-			  const void *arg,
-			  bool bunique);
+bool bstlink_insert(struct bst_link *link,
+		    struct bst_link **proot,
+		    bstlink_compare_link_t compare_link,
+		    const void *arg,
+		    bool bunique);
 
 static inline void bstlink_erase_range(struct bst_link *beg,
 				       struct bst_link *end,
@@ -305,15 +305,22 @@ size_t bstlink_height(const struct bst_link *link, bool bmax);
 			(struct bst_link**)(pupper)			\
 		)
 
-#define __BSTLINK_INSERT_PREPARE(link, proot,				\
+#define __BSTLINK_INSERT(link, proot,				\
 				 compare_link,arg, bunique)		\
-		bstlink_insert_prepare					\
+		bstlink_insert						\
 		(							\
 			(struct bst_link*)(link),			\
 			(struct bst_link**)(proot),			\
 			(bstlink_compare_link_t)(compare_link),		\
 			(const void*)(arg),				\
 			(bunique)					\
+		)
+
+#define __BSTLINK_ERASE(link, proot)					\
+		bstlink_erase						\
+		(							\
+			(struct bst_link*)(link),			\
+			(struct bst_link**)(proot)			\
 		)
 
 #define __BSTLINK_ERASE_RANGE(beg, end, erase, arg)			\

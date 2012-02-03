@@ -207,41 +207,6 @@ void bstlink_replace(struct bst_link *victim,
 	*new = *victim;
 }
 
-bool
-bstlink_insert_prepare(struct bst_link *node,
-		       struct bst_link **proot,
-		       int (*compare_link)(const struct bst_link *link1,
-					   const struct bst_link *link2,
-					   const void *arg),
-		       const void *arg,
-		       bool bunique)
-{
-	struct bst_link *parent = NULL;
-
-	while (*proot) {
-		int icmp = compare_link(*proot, node, arg);
-
-		parent = *proot;
-
-		if (icmp > 0)
-			proot = &(*proot)->left;
-		else {
-			/* For bunique == true,
-			 * if rbtree had have a node which value equals to
-			 * the insert-node, the insert-operation fail.
-			 */
-			 if (!icmp && bunique)
-				 return false;
-
-			proot = &(*proot)->right;
-		}
-	}
-
-	bstlink_init(node, parent, proot);
-
-	return true;
-}
-
 struct bst_link *
 bstlink_find(const struct bst_link *link,
 	     bstlink_compare_t compare,
@@ -321,6 +286,38 @@ void bstlink_lower_upper_bound(const struct bst_link *link,
 		} else
 		link = link->right;
 	}
+}
+
+bool bstlink_insert(struct bst_link *link,
+		    struct bst_link **proot,
+		    bstlink_compare_link_t compare_link,
+		    const void *arg,
+		    bool bunique)
+{
+	struct bst_link *parent = NULL;
+
+	while (*proot) {
+		int icmp = compare_link(*proot, link, arg);
+
+		parent = *proot;
+
+		if (icmp > 0)
+			proot = &(*proot)->left;
+		else {
+			/* For bunique == true,
+			 * if rbtree had have a node which value equals to
+			 * the insert-node, the insert-operation fail.
+			 */
+			 if (!icmp && bunique)
+				 return false;
+
+			proot = &(*proot)->right;
+		}
+	}
+
+	bstlink_init(link, parent, proot);
+
+	return true;
 }
 
 size_t bstlink_count(const struct bst_link *link,

@@ -145,7 +145,7 @@ rb_insert(struct rb_node *node,
 			      const void *arg),
 	  const void *arg)
 {
-	(void)__BSTLINK_INSERT_PREPARE(node, &rb->node, compare_link,
+	(void)__BSTLINK_INSERT(node, &rb->node, compare_link,
 				       arg, false);
 	rb_set_red(node);
 	rb_insert_rebalance(node, rb);
@@ -160,7 +160,7 @@ rb_insert_unique(struct rb_node *node,
 		 const void *arg)
 {
 	
-	if (__BSTLINK_INSERT_PREPARE(node, &rb->node, compare_link,
+	if (__BSTLINK_INSERT(node, &rb->node, compare_link,
 				       arg, false))
 	{
 		rb_set_red(node);
