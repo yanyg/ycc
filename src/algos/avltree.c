@@ -18,6 +18,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <assert.h>
+
 #include <ycc/algos/avltree.h>
 
 void avl_insert_rebalance(struct avl_node *node, struct avl_root *avl)
@@ -71,13 +73,14 @@ void avl_insert_rebalance(struct avl_node *node, struct avl_root *avl)
 static inline void
 __avl_erase_rebalance(struct avl_node *node,
 		      struct avl_node *parent,
-		      struct avl_root *avl)
+		      struct avl_node **proot)
 {
 	struct avl_node *other;
-	struct avl_node **proot = &avl->node;
 
 	/* empty tree */
-	if (*proot)
+	assert(parent != NULL);
+	assert(*proot);
+	if (!*proot)
 		return;
 
 	while (node != *proot && (!node || node->depth + 1 != parent->depth)) {
@@ -143,6 +146,20 @@ __avl_erase_rebalance(struct avl_node *node,
 	}
 }
 
+/* erase specialized */
+#define __BSTLINK_TYPE struct avl_node
+#define __BSTLINK_ERASE_SPECIALIZE_BOTH(node, scor)		\
+	avl_set_depth(scor, avl_depth(node))
+#define __BSTLINK_ERASE_SPECIALIZE_DO(child, parent, proot)	\
+	if (parent)						\
+		__avl_erase_rebalance(child, parent, proot);
+
+//#include "bstree-internal.h"
+//void avl_erase(struct avl_node *node, struct avl_root *avl)
+//{
+//	__BSTLINK_ERASE(node, &avl->node);
+//}
+#if 1
 void avl_erase(struct avl_node *node, struct avl_root *avl)
 {
 	struct avl_node *child, *parent;
@@ -197,7 +214,8 @@ void avl_erase(struct avl_node *node, struct avl_root *avl)
 	}
 
 	if (parent)
-		__avl_erase_rebalance(child, parent, avl);
+		__avl_erase_rebalance(child, parent, &avl->node);
 }
+#endif
 
 /* eof */

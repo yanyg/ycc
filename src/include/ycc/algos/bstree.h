@@ -71,10 +71,7 @@ static inline struct bst_node *bst_prev(const struct bst_node* node)
 	return __BSTLINK_PREV(node, struct bst_node);
 }
 
-static inline void bst_erase(struct bst_node *node, struct bst_root *bst)
-{
-	__BSTLINK_ERASE(node, &bst->node);
-}
+void bst_erase(struct bst_node *node, struct bst_root *bst);
 
 /* helper routine */
 static inline struct bst_node *

@@ -20,4 +20,11 @@
 
 #include <ycc/algos/bstree.h>
 
+#include "bstree-internal.h"
+
+void bst_erase(struct bst_node *node, struct bst_root *bst)
+{
+	__BSTLINK_ERASE(node, &bst->node);
+}
+
 /* eof */

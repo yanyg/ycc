@@ -205,8 +205,6 @@ bool bstlink_insert(struct bst_link *link,
 		    const void *arg,
 		    bool bunique);
 
-void bstlink_erase(struct bst_link *link, struct bst_link **proot);
-
 static inline void bstlink_erase_range(struct bst_link *beg,
 				       struct bst_link *end,
 				       bstlink_erase_t erase,
@@ -316,13 +314,6 @@ size_t bstlink_height(const struct bst_link *link, bool bmax);
 			(bstlink_compare_link_t)(compare_link),		\
 			(const void*)(arg),				\
 			(bunique)					\
-		)
-
-#define __BSTLINK_ERASE(link, proot)					\
-		bstlink_erase						\
-		(							\
-			(struct bst_link*)(link),			\
-			(struct bst_link**)(proot)			\
 		)
 
 #define __BSTLINK_ERASE_RANGE(beg, end, erase, arg)			\

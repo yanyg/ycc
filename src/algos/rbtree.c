@@ -83,10 +83,9 @@ void rb_insert_rebalance(struct rb_node *node, struct rb_root *rb)
 static inline void
 __rb_erase_rebalance(struct rb_node *node,
 		     struct rb_node *parent,
-		     struct rb_root *rb)
+		     struct rb_node **proot)
 {
 	struct rb_node *other;
-	struct rb_node **proot = &rb->node;
 
 	while (node != *proot && (!node || rb_is_black(node))) {
 		/*
@@ -160,6 +159,26 @@ __rb_erase_rebalance(struct rb_node *node,
 		rb_set_black(node);
 }
 
+/* erase specialized */
+#define __BSTLINK_ERASE_SPECIALIZE_DECLARE()	unsigned color
+#define __BSTLINK_TYPE struct rb_node
+#define __BSTLINK_ERASE_SPECIALIZE_SINGLE(node)	color = rb_color(node)
+#define __BSTLINK_ERASE_SPECIALIZE_BOTH(node, scor)		\
+	do {							\
+		color = rb_color(scor);				\
+		rb_set_color(scor, rb_color(node));		\
+	} while(0)
+#define __BSTLINK_ERASE_SPECIALIZE_DO(child, parent, proot)	\
+	if (color == RB_COLOR_BLACK)				\
+		__rb_erase_rebalance(child, parent, proot);
+
+#include "bstree-internal.h"
+void rb_erase(struct rb_node *node, struct rb_root *rb)
+{
+	__BSTLINK_ERASE(node, &rb->node);
+}
+
+#if 0
 void rb_erase(struct rb_node *node, struct rb_root *rb)
 {
 	unsigned color;
@@ -219,5 +238,6 @@ void rb_erase(struct rb_node *node, struct rb_root *rb)
 	if (color == RB_COLOR_BLACK)
 		__rb_erase_rebalance(child, parent, rb);
 }
+#endif
 
 /* eof */
