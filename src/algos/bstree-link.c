@@ -320,6 +320,61 @@ bool bstlink_insert(struct bst_link *link,
 	return true;
 }
 
+void bstlink_erase(struct bst_link *link, struct bst_link **proot)
+{
+	struct bst_link *child, *parent;
+
+	if (!link->left || !link->right) {
+		if (!link->left)
+			child = link->right;
+		else
+			child = link->left;
+
+		parent = link->parent;
+		if (child)
+			child->parent = parent;
+		if (parent) {
+			if (parent->left == link)
+				parent->left = child;
+			else
+				parent->right = child;
+		} else
+			*proot = child;
+	} else {
+		struct bst_link *scor;	/* scor: successor */
+		
+		scor = link->right;
+		while (scor->left)
+			scor = scor->left;
+
+		if (link->parent) {
+			if (link->parent->left == link)
+				link->parent->left = scor;
+			else
+				link->parent->right = scor;
+		} else
+			*proot = scor;
+
+		child = scor->right;
+		parent = scor->parent;
+
+		if (parent == link)
+			parent = scor;
+		else {
+			if (child)
+				child->parent = parent;
+
+			parent->left = child;
+			scor->right = link->right;
+			link->right->parent = scor;
+		}
+
+		scor->parent = link->parent;
+		scor->left = link->left;
+		link->left->parent = scor;
+	}
+}
+
 size_t bstlink_count(const struct bst_link *link,
 		     bstlink_compare_t compare,
 		     const void *arg)
