@@ -236,6 +236,16 @@ avl_height(struct avl_root *avl, bool bmax)
 #define avl_height_max(avl)	avl_height(avl, true)
 #define avl_height_min(avl)	avl_height(avl, false)
 
+/* valid check */
+#ifndef NDEBUG
+bool avl_isvalid(struct avl_root *avl);
+#else
+static inline bool avl_isvalid(struct avl_root *avl)
+{
+	return true;
+}
+#endif
+
 __END_DECLS
 
 #endif /* __YC_ALGOS_avlTREE_H_ */

@@ -164,4 +164,16 @@ void avl_erase(struct avl_node *node, struct avl_root *avl)
 	__BSTLINK_ERASE(node, &avl->node);
 }
 
+#ifndef NDEBUG
+static bool __avl_valid(struct avl_node *root, size_t depth)
+{
+}
+
+bool avl_isvalid(struct avl_root *avl)
+{
+	size_t depth = 1;
+	return __avl_valid(avl->node, depth);
+}
+#endif
+
 /* eof */
