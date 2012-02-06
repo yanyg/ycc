@@ -243,6 +243,16 @@ rb_height(struct rb_root *rb, bool bmax)
 #define rb_height_max(rb)	rb_height(rb, true)
 #define rb_height_min(rb)	rb_height(rb, false)
 
+/* valid check */
+#ifndef NDEBUG
+bool rb_isvalid(struct rb_root *rb);
+#else
+static inline bool rb_isvalid(struct rb_root *rb)
+{
+	return true;
+}
+#endif
+
 struct rb_root *rb_alloc(size_t num);
 void rb_free(struct rb_root *rb,
 	     size_t num,

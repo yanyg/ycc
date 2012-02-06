@@ -178,4 +178,16 @@ void rb_erase(struct rb_node *node, struct rb_root *rb)
 	__BSTLINK_ERASE(node, &rb->node);
 }
 
+#ifndef NDEBUG
+static bool __rb_isvalid(struct rb_node *root)
+{
+	return true;
+}
+
+bool rb_isvalid(struct rb_root *rb)
+{
+	return __rb_isvalid(rb->node);
+}
+#endif
+
 /* eof */
