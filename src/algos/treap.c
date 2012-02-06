@@ -38,9 +38,44 @@ void treap_insert_rebalance(struct treap_node *node, struct treap_root *treap)
 }
 
 #include "bstree-internal.h"
+#define __BSTLINK_TYPE struct treap_node
+#define __BSTLINK_ERASE_SPECIALIZE_BOTH(node, scor)		\
+		treap_set_priority(scor, treap_priority(node))
 void treap_erase(struct treap_node *node, struct treap_root *treap)
 {
 	__BSTLINK_ERASE(node, &treap->node);
 }
+
+#ifndef NDEBUG
+static bool __treap_isvalid(struct treap_node *root)
+{
+	unsigned priority = (unsigned)-1;
+
+	if (!root)
+		return true;
+
+	if (root->left)
+		priority = root->left->priority;
+
+	if (root->right && root->right->priority < priority)
+		priority = root->right->priority;
+
+	if (priority < root->priority)
+		return false;
+
+	if (!root->left)
+		return __treap_isvalid(root->right);
+	else if (!root->right)
+		return __treap_isvalid(root->left);
+	else
+		return __treap_isvalid(root->left) &&
+		       __treap_isvalid(root->right);
+}
+
+bool treap_isvalid(struct treap_root *treap)
+{
+	return __treap_isvalid(treap->node);
+}
+#endif
 
 /* eof */

@@ -68,6 +68,10 @@ int main()
 #ifndef NDEBUG
 	printf("height: {%zu, %zu}\n", treap_height_min(&treap), treap_height_max(&treap));
 #endif
+	if (!treap_isvalid(&treap)) {
+		printf("treap_isvalid failed !\n");
+		return 1;
+	}
 
 	treap_node = treap_first(&treap);
 	if (treap_node) {
@@ -86,6 +90,10 @@ int main()
 	printf("1 node_cnt: %d\n", node_cnt);
 	i = 105;
 	treap_erase_equal(&treap, compare, destroy, &i, NULL);
+	if (!treap_isvalid(&treap)) {
+		printf("treap_isvalid failed 1!\n");
+		return 1;
+	}
 	printf("2 node_cnt: %d\n", node_cnt);
 	treap_clear(&treap, destroy, NULL);
 	printf("3 node_cnt: %d\n", node_cnt);
