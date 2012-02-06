@@ -165,14 +165,69 @@ void avl_erase(struct avl_node *node, struct avl_root *avl)
 }
 
 #ifndef NDEBUG
-static bool __avl_valid(struct avl_node *root, size_t depth)
+#include <ycc/debug.h>
+static bool __avl_isvalid(struct avl_node *root)
 {
+	size_t droot, dleft, dright, dmax = 0;
+
+	if (!root)
+		return true;
+
+	droot = root->depth;
+
+	if (!root->left && !root->right) {
+		if (droot != 1) {
+			dprintf("droot = %u\n", droot);
+			return false;
+		}
+		return true;
+	}
+
+	if (!root->left) {
+		dright = root->right->depth;
+		if (dright != 1 || droot != 2) {
+			dprintf("droot = %u, dright = %u\n", droot, dright);
+			return false;
+		}
+
+		return __avl_isvalid(root->right);
+	}
+
+	if (!root->right) {
+		dleft = root->left->depth;
+		if (dleft != 1 || droot != 2) {
+			dprintf("droot = %u, dleft = %u\n", dleft, dleft);
+			return false;
+		}
+
+		return __avl_isvalid(root->left);
+	}
+
+	dleft = root->left->depth;
+	dright = root->right->depth;
+
+	if (dleft > dright)
+		dmax = dleft;
+	else
+		dmax = dright;
+
+	if (dmax - dleft > 1 || dmax - dright > 1) {
+		dprintf("dleft = %u, dright = %u\n", dleft, dright);
+		return false;
+	}
+
+	if (droot != dmax + 1) {
+		dprintf("droot = %u, dleft = %u, dright = %u\n",
+			droot, dleft, dright);
+		return false;
+	}
+
+	return __avl_isvalid(root->left) && __avl_isvalid(root->right);
 }
 
 bool avl_isvalid(struct avl_root *avl)
 {
-	size_t depth = 1;
-	return __avl_valid(avl->node, depth);
+	return __avl_isvalid(avl->node);
 }
 #endif
 

@@ -25,7 +25,7 @@
 #undef NDEBUG
 #endif
 
-#include <ycc/dstdio.h>
+#include <ycc/debug.h>
 
 static bool bstamp = true;
 

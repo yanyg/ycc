@@ -66,8 +66,13 @@ int main()
 	}
 
 #ifndef NDEBUG
-	printf("height: {%zu, %zu}\n", avl_height_min(&avl), avl_height_max(&avl));
+	printf("height: {%zu, %zu}\n",
+	       avl_height_min(&avl), avl_height_max(&avl));
 #endif
+	if (!avl_isvalid(&avl)) {
+		printf ("avl_isvalid failed !\n");
+		return 1;
+	}
 
 	avl_node = avl_first(&avl);
 	if (avl_node) {
@@ -75,7 +80,8 @@ int main()
 		avl_node = avl_next(avl_node);
 
 		while (avl_node) {
-			register int val_new = avl_entry(avl_node, struct node, avl_node)->val;
+			register int val_new = avl_entry(avl_node, struct node,
+							 avl_node)->val;
 			if (val > val_new) {
 				printf("error: %d, %d\n", val, val_new);
 			}
@@ -87,6 +93,10 @@ int main()
 	i = 105;
 	avl_erase_equal(&avl, compare, destroy, &i, NULL);
 	printf("2 node_cnt: %d\n", node_cnt);
+	if (!avl_isvalid(&avl)) {
+		printf ("avl_isvalid failed 1 !\n");
+		return 1;
+	}
 	avl_clear(&avl, destroy, NULL);
 	printf("3 node_cnt: %d\n", node_cnt);
 	avl_node = avl_first(&avl);

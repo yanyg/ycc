@@ -34,8 +34,8 @@ bool dstamp(bool stamp);
 #ifdef NDEBUG
 /* NDEBUG: turn off */
 #define DINSERT(x)			__ASSERT_VOID_CAST(0)
-#define dprintf(fmt)			__ASSERT_VOID_CAST(0)
-#define dfprintf(stream, fmt)		__ASSERT_VOID_CAST(0)
+#define dprintf(fmt, ...)		__ASSERT_VOID_CAST(0)
+#define dfprintf(stream, fmt, ...)	__ASSERT_VOID_CAST(0)
 #define dvprintf(fmt, ap)		__ASSERT_VOID_CAST(0)
 #define dvfprintf(stream, fmt, ap)	__ASSERT_VOID_CAST(0)
 #else
