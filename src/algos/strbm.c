@@ -63,9 +63,10 @@ void strbm_init(const char *needle, size_t n,
 
 	/* prefix */
 	k = j + 1;
-	for (i = 0; i < k; ++i)
+	for (i = 0; i < k; ++i) {
 		if (!sgs[i])
 			sgs[i] = k;
+	}
 
 	i = backup[j];
 	while (j < n) {
