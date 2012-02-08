@@ -1,5 +1,5 @@
 /*
- * string.h -- Exact String Matching
+ * strbmh.c -- Exact String Matching: Boyer-Moore-Horspool [Hor 80]
  *
  * Copyright (C) 2012-2013 yanyg (cppgp@qq.com)
  *
@@ -18,27 +18,51 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __YCC_ALGOS_STRING_H_
-#define __YCC_ALGOS_STRING_H_
+/*
+ * [Hor 80] Practical Fast Searching in Strings,
+ *          R. Nigel Horspool,
+ *          Softw. Pratt. Exp., 10, 501–506 (1980).
+ */
 
+#include <assert.h>
+#include <limits.h>
 #include <stddef.h>
+#include <sys/types.h>
 
-#include <ycc/compiler.h>
+#include <ycc/algos/string.h>
 
-__BEGIN_DECLS
+void strbmh_init(const char *needle, size_t n, size_t *table)
+{
+	size_t i;
 
-/* table size: strlen(patn) */
-void strkmp_init(const char *patn, size_t *table);
-char *strkmp_find(const char *text, const char *patn, const size_t *table);
+	for (i = 0; i <= UCHAR_MAX; ++i)
+		table[i] = n;
 
-/* table size: UCHAR_MAX+1 (56) */
-void strbmh_init(const char *needle, size_t n, size_t *table);
+	--needle;
+	for (i = 1; i < n; ++i)
+		table[(u_char)needle[i]] = n - i;
+}
+
 char *strbmh_find(const char *haystack, const char *needle,
 		  size_t h, size_t n,
-		  const size_t *table);
+		  const size_t *table)
+{
+	size_t i, n1 = n - 1;
 
-__END_DECLS
+	if (!n1)
+		return (char*)haystack;
 
-#endif
+	while (h > n1) {
+		for (i = n1; i != (size_t)-1 && haystack[i] == needle[i]; --i);
+
+		if (i == (size_t)-1)	/* [0, n1] are equal. */
+			return (char*)haystack;
+
+		h -= table[(u_char)haystack[n1]];
+		haystack += table[(u_char)haystack[n1]];
+	}
+
+	return NULL;
+}
 
 /* eof */
