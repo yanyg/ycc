@@ -31,11 +31,21 @@ __BEGIN_DECLS
 void strkmp_init(const char *patn, size_t *table);
 char *strkmp_find(const char *text, const char *patn, const size_t *table);
 
-/* table size: UCHAR_MAX+1 (56) */
+/* table size: UCHAR_MAX+1 (256) */
 void strbmh_init(const char *needle, size_t n, size_t *table);
 char *strbmh_find(const char *haystack, const char *needle,
 		  size_t h, size_t n,
 		  const size_t *table);
+
+/*
+ * table_sgs size: strlen(needle)*2
+ * table_ebc size: UCHAR_MAX+1 (256)
+ */
+void strbm_init(const char *needle, size_t n,
+		size_t *table_sgs, size_t *table_ebc);
+char *strbm_find(const char *haystack, const char *needle,
+		 size_t h, size_t n,
+		 const size_t *table_sgs, const size_t *table_ebc);
 
 __END_DECLS
 

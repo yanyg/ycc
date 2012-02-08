@@ -49,7 +49,7 @@ char *strbmh_find(const char *haystack, const char *needle,
 {
 	size_t i, n1 = n - 1;
 
-	if (!n1)
+	if (!n)
 		return (char*)haystack;
 
 	while (h > n1) {
