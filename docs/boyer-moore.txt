@@ -1,0 +1,25 @@
+* Reference
+	[BM 77] A fast string search algorithm,
+	R. S. Boyer and J. S. Moore,
+	Comm. ACM, 20, 1977, pp. 762–772.
+
+* Introduction
+
+* Properties
+	Sublinear
+
+* Description
+Pattern pat
+1). Observation 1 -- Char is not to occur in pat.
+	Shift patlen is safe.
+
+2). Observation 2 --
+	The last occurrence of char in pat is delta1 characters from the right
+	end of the pat.
+	Slide pat down delta1 positions are safe.
+
+3). Observation 3(a) --
+	Slide pat down k so as to align the two known occurrences of char.
+
+4). Observation 3(b) --
+	Subpat of pat reoccurrence. delta2.

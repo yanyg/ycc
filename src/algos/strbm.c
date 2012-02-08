@@ -22,6 +22,9 @@
  * [BM 77] A fast string search algorithm,
  *         R. S. Boyer and J. S. Moore,
  *         Comm. ACM, 20, 1977, pp. 762–772.
+ * [Smit 1982] A Comparison of Three String Matching Algorithms,
+ *             Smit G. De V.,
+ *             Software-Practice and Experience, 12(1), 57-66, 1982
  */
 
 #include <assert.h>
@@ -35,14 +38,15 @@ void strbm_init(const char *needle, size_t n,
 		size_t *table_sgs, size_t *table_ebc)
 {
 	/*
-	 * sgs: strong good suffix
+	 * table_sgs: strong good suffix
 	 * ebc: extended bad character
 	 */
 
 	size_t i, j, k;
-	size_t *sgs = table_sgs + 1, *backup = sgs + n;
+	size_t *backup = table_sgs + n;
 
-	memset(sgs, 0, n*sizeof(*sgs));
+	/* init */
+	memset(table_sgs, 0, n*sizeof(*table_sgs));
 
 	/* suffix */
 	i = n - 1;
@@ -51,8 +55,8 @@ void strbm_init(const char *needle, size_t n,
 		backup[i] = j;
 
 		while (j < n && needle[i] != needle[j]) {
-			if (!sgs[j])
-				sgs[j] = j - i;
+			if (!table_sgs[j])
+				table_sgs[j] = j - i;
 
 			j = backup[j];
 		}
@@ -64,15 +68,15 @@ void strbm_init(const char *needle, size_t n,
 	/* prefix */
 	k = j + 1;
 	for (i = 0; i < k; ++i) {
-		if (!sgs[i])
-			sgs[i] = k;
+		if (!table_sgs[i])
+			table_sgs[i] = k;
 	}
 
 	i = backup[j];
 	while (j < n) {
 		while (j < i) {
-			if (!sgs[j])
-				sgs[j] = i;
+			if (!table_sgs[j])
+				table_sgs[j] = i;
 			++j;
 		}
 		i = backup[i];
