@@ -13,11 +13,16 @@ int main()
 	char *needle = ", yyg is a good";
 	size_t table_sgs[32], table_ebc[UCHAR_MAX+1];
 
-	strbm_init(needle, strlen(needle), table_sgs, table_ebc);
+	//strbm_init(needle, strlen(needle), table_sgs, table_ebc);
 
-	char *result = strbm_find(haystack, needle,
+	//char *result = strbm_find(haystack, needle,
+	//			  strlen(haystack), strlen(needle),
+	//			  table_sgs, table_ebc);
+	strbmh_init(needle, strlen(needle), table_ebc);
+
+	char *result = strbmh_find(haystack, needle,
 				  strlen(haystack), strlen(needle),
-				  table_sgs, table_ebc);
+				  table_ebc);
 
 	if (result)
 		printf("find success: %s\n", result);
