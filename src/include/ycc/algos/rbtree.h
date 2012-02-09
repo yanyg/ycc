@@ -29,8 +29,8 @@
 Example of insert and search routines.
 #endif
 
-#ifndef __YC_ALGOS_RBTREE_H_
-#define __YC_ALGOS_RBTREE_H_
+#ifndef __YCC_ALGOS_RBTREE_H_
+#define __YCC_ALGOS_RBTREE_H_
 
 #include <ycc/algos/bstree-link.h>
 
