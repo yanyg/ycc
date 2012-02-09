@@ -30,10 +30,13 @@
 
 __BEGIN_DECLS
 
+ssize_t recv_time(int fd, void *buf, size_t n, int flags, int timeout);
+ssize_t send_time(int fd, const void *buf, size_t n, int flags, int timeout);
+
 ssize_t recvn(int fd, void *buf, size_t n, int flags);
 ssize_t sendn(int fd, const void *buf, size_t n, int flags);
-ssize_t recvn_time(int fd, void *buf, size_t n, int flags);
-ssize_t sendn_time(int fd, const void *buf, size_t n, int flags);
+ssize_t recvn_time(int fd, void *buf, size_t n, int flags, int timeout);
+ssize_t sendn_time(int fd, const void *buf, size_t n, int flags, int timeout);
 
 static inline ssize_t recv_EINTR(int fd, void *buf, size_t n, int flags)
 {

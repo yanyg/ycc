@@ -18,11 +18,48 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/select.h>
-#include <sys/time.h>
-#include <unistd.h>
+#include <errno.h>
+#include <poll.h>
 
 #include <ycc/net/socket.h>
+
+static inline int poll_EINTR(struct pollfd *fds, nfds_t nfds, int timeout)
+{
+	int r;
+
+	do {
+		r = poll(fds, nfds, timeout);
+	} while(-1 == r && EINTR == errno);
+
+	return r;
+}
+
+static inline int poll_fd(int fd, short events, int timeout)
+{
+	struct pollfd fds[1] = { { fd, events, } };
+
+	return poll_EINTR(fds, 1, timeout);
+}
+
+ssize_t recv_time(int fd, void *buf, size_t n, int flags, int timeout)
+{
+	int r = poll_fd(fd, POLLIN, timeout);
+
+	if (1 == r)
+		return recv_EINTR(fd, buf, n, flags);
+
+	return r;
+}
+
+ssize_t send_time(int fd, const void *buf, size_t n, int flags, int timeout)
+{
+	int r = poll_fd(fd, POLLOUT, timeout);
+
+	if (1 == r)
+		return send_EINTR(fd, buf, n, flags);
+
+	return r;
+}
 
 ssize_t recvn(int fd, void *buf, size_t n, int flags)
 {
@@ -66,3 +103,13 @@ ssize_t sendn(int fd, const void *buf, size_t n, int flags)
 
 	return (ssize_t)n;
 }
+
+ssize_t recvn_time(int fd, void *buf, size_t n, int flags, int timeout)
+{
+}
+
+ssize_t sendn_time(int fd, const void *buf, size_t n, int flags, int timeout)
+{
+}
+
+/* eof */
