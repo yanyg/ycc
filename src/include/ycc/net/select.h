@@ -1,5 +1,5 @@
 /*
- * socket.h -- wrapper of socket
+ * select.h -- synchronous I/O multiplexing
  *
  * Copyright (C) 2012-2013 yanyg (cppgp@qq.com)
  *
@@ -18,46 +18,44 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __YC_NET_SOCKET_H_
-#define __YC_NET_SOCKET_H_
+#ifndef __YC_NET_SELECT_H_
+#define __YC_NET_SELECT_H_
 
 #include <errno.h>
+#include <sys/select.h>
+#include <sys/time.h>
 #include <sys/types.h>
-#include <sys/socket.h>
+#include <unistd.h>
 
 #include <ycc/compiler.h>
-#include <ycc/net/socket.h>
 
 __BEGIN_DECLS
 
-ssize_t recv_time(int fd, void *buf, size_t n, int flags, int timeout);
-ssize_t send_time(int fd, const void *buf, size_t n, int flags, int timeout);
-
-ssize_t recvn(int fd, void *buf, size_t n, int flags);
-ssize_t sendn(int fd, const void *buf, size_t n, int flags);
-ssize_t recvn_time(int fd, void *buf, size_t n, int flags, int timeout);
-ssize_t sendn_time(int fd, const void *buf, size_t n, int flags, int timeout);
-
-static inline ssize_t recv_EINTR(int fd, void *buf, size_t n, int flags)
+static inline int
+select_EINTR(int nfds,
+	     fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+	     struct timeval *timeout)
 {
-	ssize_t r;
+	int r;
 
 	do {
-		r = recv(fd, buf, n, flags);
+		r = select(nfds, readfds, writefds, exceptfds, timeout);
 	} while (-1 == r && EINTR == errno);
 
 	return r;
 }
 
-static inline ssize_t send_EINTR(int fd, const void *buf, size_t n, int flags)
+#define SELECT_READ	0
+#define SELECT_WRITE	1
+#define SELECT_EXCEPT	2
+int select_fd(int fd, struct timeval *timeout, int type);
+static inline int select_fd_rd(int fd, struct timeval *timeout)
 {
-	ssize_t r;
-
-	do {
-		r = send(fd, buf, n, flags);
-	} while (-1 == r && EINTR == errno);
-
-	return r;
+	return select_fd(fd, timeout, SELECT_READ);
+}
+static inline int select_fd_wr(int fd, struct timeval *timeout)
+{
+	return select_fd(fd, timeout, SELECT_WRITE);
 }
 
 __END_DECLS
