@@ -21,22 +21,53 @@
 #ifndef __YC_NET_SOCKET_H_
 #define __YC_NET_SOCKET_H_
 
+#include <arpa/inet.h>
 #include <errno.h>
-#include <sys/types.h>
+#include <netinet/in.h>
+#include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 #include <ycc/compiler.h>
-#include <ycc/net/socket.h>
 
 __BEGIN_DECLS
 
-ssize_t recv_time(int fd, void *buf, size_t n, int flags, int timeout);
-ssize_t send_time(int fd, const void *buf, size_t n, int flags, int timeout);
+static inline void
+ipv4_filladdr(struct sockaddr_in *sa, in_addr_t addr, unsigned short port,
+	      int domain)
+{
+	sa->sin_port = htons(port);
+	sa->sin_family = domain;
+	sa->sin_addr.s_addr = addr;
+	memset(sa->sin_zero, 0, sizeof(sa->sin_zero));
+}
+
+static inline void
+ipv4_filladdr_string(struct sockaddr_in *sa, const char *ip,
+		     unsigned short port, int domain)
+{
+	return ipv4_filladdr(sa, inet_addr(ip), port, domain);
+}
+
+int ipv4_bind(int domain, int type, const struct sockaddr_in *sa);
+int ipv4_listen(int domain, int type,
+		const struct sockaddr_in *sa, int backlog);
+int ipv4_connect_time(int domain, int type,
+		      const struct sockaddr_in *sa, int timeout);
 
 ssize_t recvn(int fd, void *buf, size_t n, int flags);
 ssize_t sendn(int fd, const void *buf, size_t n, int flags);
+ssize_t recv_time(int fd, void *buf, size_t n, int flags, int timeout);
+ssize_t send_time(int fd, const void *buf, size_t n, int flags, int timeout);
 ssize_t recvn_time(int fd, void *buf, size_t n, int flags, int timeout);
 ssize_t sendn_time(int fd, const void *buf, size_t n, int flags, int timeout);
+
+ssize_t
+recvfrom_time(int fd, void *buf, size_t n, int flags,
+	      struct sockaddr *src_addr, socklen_t *addrlen, int timeout);
+ssize_t
+sendto_time(int fd, const void *buf, size_t n, int flags,
+	    const struct sockaddr *dest_addr, socklen_t addrlen, int timeout);
 
 static inline ssize_t recv_EINTR(int fd, void *buf, size_t n, int flags)
 {
@@ -55,6 +86,32 @@ static inline ssize_t send_EINTR(int fd, const void *buf, size_t n, int flags)
 
 	do {
 		r = send(fd, buf, n, flags);
+	} while (-1 == r && EINTR == errno);
+
+	return r;
+}
+
+static inline ssize_t
+recvfrom_EINTR(int fd, void *buf, size_t n, int flags,
+	       struct sockaddr *src_addr, socklen_t *addrlen)
+{
+	ssize_t r;
+
+	do {
+		r = recvfrom(fd, buf, n, flags, src_addr, addrlen);
+	} while (-1 == r && EINTR == errno);
+
+	return r;
+}
+
+static inline ssize_t
+sendto_EINTR(int fd, const void *buf, size_t n, int flags,
+	     const struct sockaddr *dest_addr, socklen_t addrlen)
+{
+	ssize_t r;
+
+	do {
+		r = sendto(fd, buf, n, flags, dest_addr, addrlen);
 	} while (-1 == r && EINTR == errno);
 
 	return r;

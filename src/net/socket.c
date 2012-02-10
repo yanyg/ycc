@@ -31,6 +31,77 @@
 
 #define TIME_MS2TV(ms) { (ms)/1000, (ms)%1000*1000, }
 
+int ipv4_bind(int domain, int type, const struct sockaddr_in *sa)
+{
+	int v = 1, fd = socket(domain, type, 0);
+
+	if (fd < 0)
+		return -1;
+
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &v, sizeof(v));
+
+	if (bind(fd, (const struct sockaddr*)sa, sizeof(*sa))) {
+		close(fd);
+		return -1;
+	}
+
+	return fd;
+}
+
+int ipv4_listen(int domain, int type,
+		const struct sockaddr_in *sa, int backlog)
+{
+	int fd = ipv4_bind(domain, type, sa);
+	if (fd < 0)
+		return fd;
+
+	if (listen(fd, backlog)) {
+		close(fd);
+		return -1;
+	}
+
+	return fd;
+}
+
+int ipv4_connect_time(int domain, int type,
+		      const struct sockaddr_in *sa, int timeout)
+{
+	int fd = socket(domain, type, 0);
+
+	if (fd < 0)
+		return fd;
+
+	set_nonblock(fd);
+
+	if (connect(fd, (const struct sockaddr*)sa, sizeof(*sa)) &&
+	    (EINPROGRESS != errno || 1 != poll_fd(fd, POLLOUT, timeout))) {
+		close(fd);
+		return -1;
+	}
+
+	set_block(fd);
+
+	return fd;
+}
+
+int tcp_listen(const struct sockaddr_in *sa, int backlog)
+{
+	int v, fd = socket(AF_INET, SOCK_STREAM, 0);
+
+	if (fd < 0)
+		return -1;
+
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &v, sizeof(v));
+
+	if (bind(fd, (const struct sockaddr*)sa, sizeof(*sa)) ||
+	    listen(fd, backlog)) {
+		close(fd);
+		return -1;
+	}
+
+	return fd;
+}
+
 ssize_t recv_time(int fd, void *buf, size_t n, int flags, int timeout)
 {
 	int r = poll_fd(fd, POLLIN, timeout);
@@ -157,6 +228,30 @@ RTN:
 	if (n == l)
 		return r;
 	return (ssize_t)(n - l);
+}
+
+ssize_t
+recvfrom_time(int fd, void *buf, size_t n, int flags,
+	      struct sockaddr *src_addr, socklen_t *addrlen, int timeout)
+{
+	int r = poll_fd(fd, POLLIN, timeout);
+
+	if (1 == r)
+		return recvfrom_EINTR(fd, buf, n, flags, src_addr, addrlen);
+
+	return r;
+}
+
+ssize_t
+sendto_time(int fd, const void *buf, size_t n, int flags,
+	    const struct sockaddr *dest_addr, socklen_t addrlen, int timeout)
+{
+	int r = poll_fd(fd, POLLOUT, timeout);
+
+	if (1 == r)
+		return sendto_EINTR(fd, buf, n, flags, dest_addr, addrlen);
+
+	return r;
 }
 
 /* eof */
