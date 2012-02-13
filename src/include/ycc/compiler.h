@@ -21,6 +21,10 @@
 #ifndef __YCC_COMPILER_H_
 #define __YCC_COMPILER_H_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifdef __GNUC__
 #include <ycc/compiler-gcc.h>
 #endif
