@@ -3,7 +3,8 @@
 
 AC_PREREQ([2.67])
 AC_INIT([ycc], [1.0.0], [cppgp@qq.com], [ycc], [http://cppgp.blog.com])
-AC_CONFIG_COMMANDS_PRE([echo top_srcdir=$top_srcdir])
+AC_SUBST([top_srcdir])
+AC_CONFIG_COMMANDS_PRE([echo top_srcdir=[@top_srcdir@]])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
@@ -19,6 +20,8 @@ AC_PROG_CC
 
 # Checks for libraries.
 
+AC_DEFINE(This, is, [an
+	  [example]])
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h	\
 		  limits.h	\
@@ -49,4 +52,7 @@ AC_CONFIG_FILES([Makefile
 		 src/tests/Makefile
 		 src/tests/algos/Makefile
 		 ])
+AC_CONFIG_COMMANDS([yyg1], [echo ["CFLAGS=$CFLAGS"]], [CFLAGS=-xx/tmp])
+AC_DEFINE_UNQUOTED([CFLAGS], ["$CFLAGS -I/tmp/xxx"], [CPPFLAGS preset.])
+AC_CONFIG_FILES([yyg:yyg.in:yyg1.in], [echo ["i'am yyg: CPPFLAGS=$CPPFLAGS; CFLAGS=$CFLAGS; srcdir=$srcdir; ac_top_srcdir=$ac_top_srcdir; ac_top_build_prefix=$ac_top_build_prefix; ac_srcdir=$ac_srcdir; tmp=$tmp; var=$var; yy=$yy"]], [echo ["i am yyg-init: var=$var; yy=yy; yy=$yy"] ])
 AC_OUTPUT
