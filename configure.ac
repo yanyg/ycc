@@ -69,7 +69,6 @@ AC_CONFIG_FILES([Makefile
 		 src/net/Makefile
 		 src/tests/Makefile
 		 src/tests/algos/Makefile
-		 src/include/Makefile
 		 ])
 AC_CONFIG_COMMANDS([yyg1], [echo ["CFLAGS=$CFLAGS"]], [CFLAGS=-xx/tmp])
 AC_DEFINE_UNQUOTED([CFLAGS], ["$CFLAGS -I/tmp/xxx"], [CPPFLAGS preset.])

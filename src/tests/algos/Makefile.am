@@ -1,4 +1,4 @@
-CPPFLAGS = -I$(top_srcdir)/src/include
+include $(top_srcdir)/Makefile.rules
 
 bin_PROGRAMS = test-avltree
 test_avltree_SOURCES = test-avltree.c
