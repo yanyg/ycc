@@ -40,10 +40,28 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
 
+AC_ARG_WITH([ycd],
+	    [AC_HELP_STRING([--with-ycd],
+			   [support ycd editing])],
+	    [],
+	    [with_ycd=check])
+
+LIBYCD=
+AS_IF([test "x$with_ycd" != xno],
+      [AC_CHECK_LIB([ycd], [main],
+		    AC_SUBST([LIBYCD], ["-lycd"])
+		    AC_DEFINE([HAVE_LIBYCD], [1],
+			      [Define if you have libycd])
+		    ],
+      [if test "x$with_ycd" != xcheck; then
+	AC_MSG_FAILURE([--with-ycd was given, but test failed])
+       fi],
+      [echo cannot decision ycd)])
+	      
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset select socket])
-
+AC_SUBST([ycc_includedir], [src/include])
 AC_CONFIG_FILES([Makefile
 		 src/Makefile
 		 src/algos/Makefile
@@ -51,6 +69,7 @@ AC_CONFIG_FILES([Makefile
 		 src/net/Makefile
 		 src/tests/Makefile
 		 src/tests/algos/Makefile
+		 src/include/Makefile
 		 ])
 AC_CONFIG_COMMANDS([yyg1], [echo ["CFLAGS=$CFLAGS"]], [CFLAGS=-xx/tmp])
 AC_DEFINE_UNQUOTED([CFLAGS], ["$CFLAGS -I/tmp/xxx"], [CPPFLAGS preset.])
