@@ -4,3 +4,5 @@ install-header:
 	$(MKDIR_P) "$(DESTDIR)$(includedir)" || exit $?
 	cp -av $(top_srcdir)/$(ycc_includedir)/ycc "$(DESTDIR)$(includedir)" \
 		|| exit $?
+
+install-dev: install install-header
