@@ -71,7 +71,7 @@ int ipv4_connect_time(int domain, int type,
 	if (fd < 0)
 		return fd;
 
-	//set_nonblock(fd);
+	/* set_nonblock(fd); */
 
 	if (connect(fd, (const struct sockaddr*)sa, sizeof(*sa)) &&
 	    (EINPROGRESS != errno || 1 != poll_fd(fd, POLLOUT, timeout))) {
@@ -79,7 +79,7 @@ int ipv4_connect_time(int domain, int type,
 		return -1;
 	}
 
-	//set_block(fd);
+	/* set_block(fd); */
 
 	return fd;
 }

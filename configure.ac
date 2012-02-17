@@ -23,6 +23,10 @@ AC_PROG_CC
 AC_DEFINE(This, is, [an
 	  [example]])
 # Checks for header files.
+AC_HEADER_ASSERT
+AC_HEADER_STDBOOL
+AC_HEADER_STDC
+AC_HEADER_TIME
 AC_CHECK_HEADERS([arpa/inet.h	\
 		  limits.h	\
 		  netinet/in.h	\
